@@ -534,8 +534,14 @@ def run_bot():
 # ════════════════════════════════════════════════
 if __name__=="__main__":
     log.info("🚀 FinApp ishga tushmoqda...")
-    # Bot alohida thread da
-    bot_thread=threading.Thread(target=run_bot,daemon=True)
-    bot_thread.start()
-    log.info(f"🌐 Flask server port {PORT} da ishlamoqda...")
-    app.run(host="0.0.0.0", port=PORT)
+    import asyncio
+
+    def run_flask():
+        log.info(f"🌐 Flask port {PORT}")
+        app.run(host="0.0.0.0", port=PORT, use_reloader=False)
+
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+
+    log.info("🤖 Bot ishga tushmoqda...")
+    run_bot()
