@@ -4,7 +4,7 @@ FinApp — Server + Bot bitta faylda
 Railway da 1 ta servis sifatida ishlaydi
 """
 
-import json, os, re, time, logging, threading, requests
+import json, os, re, time, logging, threading
 from datetime import datetime, date, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
