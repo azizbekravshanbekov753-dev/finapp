@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Takrorlanuvchi — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top"><div class="sb-brand"><div class="sb-brand-icon">💰</div><div class="sb-brand-name">Fin<span>App</span></div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item on">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0"><div class="sb-uname">Foydalanuvchi</div><div class="sb-urole">Shaxsiy hisob</div></div>
+      <button class="sb-logout logout-btn">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div><div class="topbar-title">🔄 Takrorlanuvchi xarajatlar</div><div class="topbar-subtitle">Har oy avtomatik qo'shiladigan xarajatlar</div></div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="theme-btn">☀️</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal()">+ Qo'shish</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat s-purple"><div class="stat-accent"></div><div class="stat-ico">🔄</div><div class="stat-lbl">Jami</div><div class="stat-val" id="s-total">0</div><div class="stat-sub">ta xarajat</div></div>
+        <div class="stat s-green"> <div class="stat-accent"></div><div class="stat-ico">✅</div><div class="stat-lbl">Faol</div><div class="stat-val" id="s-active">0</div></div>
+        <div class="stat s-amber"> <div class="stat-accent"></div><div class="stat-ico">⏸️</div><div class="stat-lbl">To'xtatilgan</div><div class="stat-val" id="s-paused">0</div></div>
+        <div class="stat s-red">   <div class="stat-accent"></div><div class="stat-ico">💸</div><div class="stat-lbl">Oylik jami</div><div class="stat-val" id="s-monthly">0</div></div>
+      </div>
+
+      <!-- Eslatma -->
+      <div style="background:rgba(124,106,255,.08);border:1px solid rgba(124,106,255,.2);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start">
+        <span style="font-size:20px;flex-shrink:0">💡</span>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6">
+          <strong style="color:var(--t1);display:block;margin-bottom:3px">Qanday ishlaydi?</strong>
+          Har safar sahifani ochganingizda tizim avtomatik tekshiradi — belgilangan kun (masalan, har oyning 1-si) kelsa, xarajat xarajatlar ro'yxatiga o'zi qo'shiladi va eslatma yuboriladi.
+        </div>
+      </div>
+
+      <!-- Ro'yxat -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📋 Takrorlanuvchi xarajatlar</div>
+          <div class="ftabs" style="margin-bottom:0">
+            <button class="ftab on" onclick="setFilter('all',this)">Hammasi</button>
+            <button class="ftab" onclick="setFilter('active',this)">✅ Faol</button>
+            <button class="ftab" onclick="setFilter('paused',this)">⏸️ To'xtatilgan</button>
+          </div>
+        </div>
+        <div class="card-body" id="rec-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-title">🔄 Takrorlanuvchi xarajat</div>
+    <div class="fgrp">
+      <label class="flbl">Xarajat nomi *</label>
+      <input type="text" id="m-name" class="finp" placeholder="Internet, Uy ijarasi, Gym..."/>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Summa (so'm) *</label>
+      <input type="number" id="m-amount" class="finp" placeholder="150000" min="100"/>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Kategoriya</label>
+      <select id="m-cat" class="finp">
+        <option value="utilities">💡 Kommunal</option>
+        <option value="food">🍔 Oziq-ovqat</option>
+        <option value="transport">🚌 Transport</option>
+        <option value="health">💊 Sog'liq</option>
+        <option value="entertainment">🎮 Ko'ngilochar</option>
+        <option value="education">📚 Ta'lim</option>
+        <option value="shopping">🛍️ Xarid</option>
+        <option value="other">📌 Boshqa</option>
+      </select>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Takrorlanish</label>
+      <select id="m-freq" class="finp" onchange="toggleDay()">
+        <option value="monthly">📅 Har oy</option>
+        <option value="weekly">📆 Har hafta</option>
+      </select>
+    </div>
+    <div class="fgrp" id="day-group">
+      <label class="flbl">Oyning nechanchi kunida?</label>
+      <input type="number" id="m-day" class="finp" placeholder="1" min="1" max="28" value="1"/>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">1 dan 28 gacha (har oyning shu kunida qo'shiladi)</div>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Izoh (ixtiyoriy)</label>
+      <input type="text" id="m-note" class="finp" placeholder="Qo'shimcha ma'lumot..."/>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Bekor</button>
+      <button class="btn btn-primary" onclick="saveRec()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  let curFilter = 'all';
+
+  function toggleDay(){
+    const f=document.getElementById('m-freq').value;
+    document.getElementById('day-group').style.display=f==='monthly'?'':'none';
+  }
+
+  function pageRefresh(){
+    const all     = Recurring.getAll();
+    const active  = all.filter(r=>r.active);
+    const paused  = all.filter(r=>!r.active);
+    const monthly = active.filter(r=>r.frequency==='monthly').reduce((s,r)=>s+r.amount,0);
+
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    set('s-total',   all.length);
+    set('s-active',  active.length);
+    set('s-paused',  paused.length);
+    set('s-monthly', Utils.fmtShort(monthly));
+
+    let list=all;
+    if(curFilter==='active')  list=active;
+    if(curFilter==='paused')  list=paused;
+
+    const c=document.getElementById('rec-list');
+    if(!list.length){
+      c.innerHTML=`<div class="empty">
+        <div class="empty-icon">🔄</div>
+        <div class="empty-title">${curFilter==='all'?'Takrorlanuvchi xarajat yo\'q':'Hech narsa topilmadi'}</div>
+        <div class="empty-desc">${curFilter==='all'?'Internet, uy ijarasi, gym kabi doimiy xarajatlarni qo\'shing':''}</div>
+      </div>`;
+      return;
+    }
+
+    const freqName={monthly:'Har oy',weekly:'Har hafta'};
+    c.innerHTML=list.map(r=>{
+      const info=Utils.catInfo(r.category);
+      const next=Recurring.nextDate(r);
+      const dLeft=Utils.daysLeft(next);
+      return `<div class="rec-card ani">
+        <div class="rec-ico ${r.active?'ico-purple':'ico-red'}" style="opacity:${r.active?1:.5}">${info.e}</div>
+        <div class="rec-info">
+          <div class="rec-name">${r.name}</div>
+          <div class="rec-meta">
+            <span>${freqName[r.frequency]||r.frequency}</span>
+            ${r.frequency==='monthly'?`<span>·</span><span>${r.dayOfMonth}-kuni</span>`:''}
+            ${r.note?`<span>·</span><span style="color:var(--t2)">${r.note}</span>`:''}
+          </div>
+          <div class="rec-meta" style="margin-top:3px">
+            ${r.lastAdded?`<span>Oxirgi: ${Utils.fmtDate(r.lastAdded)}</span><span>·</span>`:''}
+            <span style="color:${dLeft<=3?'var(--amber)':'var(--t3)'}">Keyingi: ${Utils.fmtDate(next)} (${dLeft>0?dLeft+' kun':dLeft===0?'Bugun':'Kechikdi!'})</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="rec-amt">−${Utils.fmtMoney(r.amount)}</div>
+          <div><span class="rec-badge ${r.active?'':'paused'}">${r.active?'Faol':'To\'xtatilgan'}</span></div>
+        </div>
+        <div class="irow-actions" style="flex-direction:column;gap:5px">
+          <button class="btn btn-ghost btn-xs" onclick="toggleRec('${r.id}')">${r.active?'⏸️ To\'xtat':'▶️ Faollash'}</button>
+          <button class="btn-icon" onclick="delRec('${r.id}')">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function setFilter(f,btn){
+    curFilter=f;
+    document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    pageRefresh();
+  }
+
+  function openModal() { document.getElementById('add-modal').classList.add('show'); }
+  function closeModal(){ document.getElementById('add-modal').classList.remove('show'); }
+
+  function saveRec(){
+    const name  =document.getElementById('m-name').value.trim();
+    const amount=parseFloat(document.getElementById('m-amount').value);
+    const cat   =document.getElementById('m-cat').value;
+    const freq  =document.getElementById('m-freq').value;
+    const day   =parseInt(document.getElementById('m-day').value)||1;
+    const note  =document.getElementById('m-note').value.trim();
+    if(!name)        {Toast.show('Nom kiriting!','warn');return;}
+    if(!amount||amount<=0){Toast.show('Summa kiriting!','warn');return;}
+    Recurring.add({name,amount,category:cat,frequency:freq,dayOfMonth:day,note:note||null});
+    Toast.show(`✅ "${name}" qo'shildi`,'ok');
+    closeModal();
+    pageRefresh();
+    ['m-name','m-amount','m-note'].forEach(id=>document.getElementById(id).value='');
+  }
+
+  function toggleRec(id){
+    Recurring.toggle(id);
+    const r=DB.find('recurring',id);
+    Toast.show(r?.active?'Faollashtirildi ▶️':'To\'xtatildi ⏸️','info');
+    pageRefresh();
+  }
+
+  function delRec(id){
+    if(!confirm("O'chirishni istaysizmi?"))return;
+    Recurring.del(id);
+    Toast.show("O'chirildi",'info');
+    pageRefresh();
+  }
+
+  document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===document.getElementById('add-modal'))closeModal();});
+</script>
+</body>
+</html>

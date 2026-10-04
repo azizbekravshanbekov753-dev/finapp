@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Qurilmani tanlang — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+  <style>
+    .device-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 24px;
+      background: var(--bg);
+    }
+    .device-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .device-logo {
+      width: 64px; height: 64px;
+      background: var(--purple-g);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      margin: 0 auto 18px;
+      box-shadow: 0 8px 28px rgba(124,106,255,.35);
+    }
+    .device-title {
+      font-size: 26px; font-weight: 800;
+      letter-spacing: -.4px; margin-bottom: 8px;
+    }
+    .device-sub {
+      font-size: 14px; color: var(--t2); line-height: 1.6;
+    }
+
+    /* Qurilma kartalar */
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 680px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .device-card {
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .25s cubic-bezier(.4,0,.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .device-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--purple-g);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .device-card:hover {
+      border-color: var(--purple);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(124,106,255,.2);
+    }
+    .device-card.selected {
+      border-color: var(--purple);
+      background: rgba(124,106,255,.1);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(124,106,255,.25);
+    }
+    .device-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 24px; height: 24px;
+      background: var(--purple);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff;
+      line-height: 24px;
+    }
+    .dc-icon {
+      font-size: 52px;
+      margin-bottom: 14px;
+      display: block;
+      position: relative; z-index: 1;
+    }
+    .dc-name {
+      font-size: 16px; font-weight: 800;
+      color: var(--t1); margin-bottom: 6px;
+      position: relative; z-index: 1;
+    }
+    .dc-desc {
+      font-size: 11.5px; color: var(--t2);
+      line-height: 1.5;
+      position: relative; z-index: 1;
+    }
+    .dc-size {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      font-size: 10px; font-weight: 700;
+      color: var(--t3);
+      position: relative; z-index: 1;
+    }
+    .device-card.selected .dc-size {
+      background: rgba(124,106,255,.15);
+      border-color: rgba(124,106,255,.3);
+      color: var(--purple);
+    }
+
+    /* Tasdiqlash tugmasi */
+    .device-btn {
+      width: 100%; max-width: 380px;
+      padding: 14px;
+      background: var(--purple-g);
+      border: none; border-radius: 12px; color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+      box-shadow: 0 4px 20px rgba(124,106,255,.35);
+      opacity: .5; pointer-events: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .device-btn.ready {
+      opacity: 1; pointer-events: all;
+    }
+    .device-btn.ready:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 26px rgba(124,106,255,.45);
+    }
+
+    /* Qurilma haqida eslatma */
+    .device-note {
+      margin-top: 16px;
+      font-size: 12px; color: var(--t3);
+      text-align: center; max-width: 380px;
+    }
+    .device-note a {
+      color: var(--purple); cursor: pointer;
+      text-decoration: none;
+    }
+    .device-note a:hover { text-decoration: underline; }
+
+    /* Animatsiya */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .device-card:nth-child(1) { animation: cardIn .4s .05s ease both; }
+    .device-card:nth-child(2) { animation: cardIn .4s .15s ease both; }
+    .device-card:nth-child(3) { animation: cardIn .4s .25s ease both; }
+
+    @media (max-width: 560px) {
+      .device-grid {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+      }
+      .device-card { padding: 20px 16px; }
+      .dc-icon { font-size: 40px; margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="device-page">
+
+  <div class="device-header">
+    <div class="device-logo">💰</div>
+    <div class="device-title">Qurilmangizni tanlang</div>
+    <div class="device-sub">
+      FinApp ekranni shu qurilmaga <strong style="color:var(--t1)">avtomatik moslashadi</strong><br>
+      Istalgan vaqt sozlamalardan o'zgartirishingiz mumkin
+    </div>
+  </div>
+
+  <div class="device-grid">
+
+    <!-- Telefon -->
+    <div class="device-card" data-device="mobile" onclick="selectDevice(this)">
+      <span class="dc-icon">📱</span>
+      <div class="dc-name">Telefon</div>
+      <div class="dc-desc">Kichik ekran uchun optimallashtirilgan, qulay katta tugmalar</div>
+      <span class="dc-size">320px – 480px</span>
+    </div>
+
+    <!-- Planshet -->
+    <div class="device-card" data-device="tablet" onclick="selectDevice(this)">
+      <span class="dc-icon">📟</span>
+      <div class="dc-name">Planshet</div>
+      <div class="dc-desc">O'rta ekran, yonboshda menyu, kengaytirilgan ko'rinish</div>
+      <span class="dc-size">481px – 900px</span>
+    </div>
+
+    <!-- Kompyuter -->
+    <div class="device-card" data-device="desktop" onclick="selectDevice(this)">
+      <span class="dc-icon">🖥️</span>
+      <div class="dc-name">Kompyuter</div>
+      <div class="dc-desc">To'liq ekran, doimiy sidebar, ko'p ustunli ko'rinish</div>
+      <span class="dc-size">901px va undan katta</span>
+    </div>
+
+  </div>
+
+  <button class="device-btn" id="continue-btn" onclick="continueNext()">
+    Davom etish →
+  </button>
+
+  <div class="device-note">
+    Qurilmani avtomatik aniqlash uchun
+    <a onclick="autoDetect()">bu yerni bosing</a>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  let chosen = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    Theme.init();
+    
+    // Tanlangan qurilmani aniqlash (foydalanuvchi yoki global)
+    const currentDevice = DeviceLayout.get() || 'desktop';
+    const card = document.querySelector(`.device-card[data-device="${currentDevice}"]`);
+    if (card) {
+      selectDevice(card);
+    } else {
+      autoDetectSilent();
+    }
+  });
+
+  function selectDevice(card) {
+    document.querySelectorAll('.device-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    chosen = card.dataset.device;
+    const btn = document.getElementById('continue-btn');
+    if (btn) btn.classList.add('ready');
+  }
+
+  function autoDetect() {
+    const w = window.innerWidth;
+    let type = w <= 480 ? 'mobile' : w <= 900 ? 'tablet' : 'desktop';
+    const card = document.querySelector(`.device-card[data-device="${type}"]`);
+    if (card) selectDevice(card);
+    const names = { mobile: 'Telefon (320px - 480px)', tablet: 'Planshet (481px - 900px)', desktop: 'Kompyuter (901px+)' };
+    showToast(`Qurilma aniqlandi: ${names[type]} ✅`);
+  }
+
+  function autoDetectSilent() {
+    const w = window.innerWidth;
+    let type = w <= 480 ? 'mobile' : w <= 900 ? 'tablet' : 'desktop';
+    const card = document.querySelector(`.device-card[data-device="${type}"]`);
+    if (card) selectDevice(card);
+  }
+
+  function continueNext() {
+    if (!chosen) chosen = 'desktop';
+    DeviceLayout.set(chosen);
+    goNext();
+  }
+
+  function goNext() {
+    const u = Auth.current();
+    if (!u) {
+      window.location.href = 'finance_dashboard.html';
+      return;
+    }
+    // Onboarding o'tilganmi?
+    const obKey = 'fin_ob_' + u.id;
+    if (!localStorage.getItem(obKey)) {
+      window.location.href = 'finance_onboarding.html';
+    } else {
+      window.location.href = 'finance_dashboard.html';
+    }
+  }
+
+  // Mini toast
+  function showToast(msg) {
+    let c = document.getElementById('dt');
+    if (!c) { c = document.createElement('div'); c.id='dt'; c.className='toast-wrap'; document.body.appendChild(c); }
+    const t = document.createElement('div');
+    t.className = 'toast t-ok';
+    t.innerHTML = `<span style="font-size:16px">✅</span><span class="toast-msg">${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+  }
+</script>
+</body>
+</html>

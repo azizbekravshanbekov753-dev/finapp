@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PIN kiriting — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div class="pin-page">
+  <div class="pin-logo">💰</div>
+  <div class="pin-title">PIN kiriting</div>
+  <div class="pin-sub" id="pin-sub">Hisobingizni himoya qilish uchun PIN kiriting</div>
+
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pressKey('1')">1</button>
+    <button class="pin-key" onclick="pressKey('2')">2</button>
+    <button class="pin-key" onclick="pressKey('3')">3</button>
+    <button class="pin-key" onclick="pressKey('4')">4</button>
+    <button class="pin-key" onclick="pressKey('5')">5</button>
+    <button class="pin-key" onclick="pressKey('6')">6</button>
+    <button class="pin-key" onclick="pressKey('7')">7</button>
+    <button class="pin-key" onclick="pressKey('8')">8</button>
+    <button class="pin-key" onclick="pressKey('9')">9</button>
+    <button class="pin-key" style="visibility:hidden"></button>
+    <button class="pin-key" onclick="pressKey('0')">0</button>
+    <button class="pin-key del" onclick="delKey()">⌫</button>
+  </div>
+
+  <button class="pin-forget" onclick="forgetPIN()">PIN ni unutdim</button>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  let entered = '';
+  let attempts = 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    Theme.init();
+    if (!Auth.current()) { window.location.href = 'finance_auth.html'; return; }
+    // PIN yo'q bo'lsa — dashboard
+    if (!PIN.has()) { window.location.href = 'finance_dashboard.html'; return; }
+    // Allaqachon PIN kiritilgan bo'lsa — dashboard
+    if (sessionStorage.getItem('fin_pin_ok')) { window.location.href = 'finance_dashboard.html'; return; }
+  });
+
+  function pressKey(k) {
+    if (entered.length >= 4) return;
+    entered += k;
+    updateDots();
+    if (entered.length === 4) setTimeout(checkPIN, 200);
+  }
+
+  function delKey() {
+    entered = entered.slice(0, -1);
+    updateDots();
+  }
+
+  function updateDots(err = false) {
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('d' + i);
+      d.className = 'pin-dot' + (i < entered.length ? ' fill' : '') + (err ? ' err' : '');
+    }
+  }
+
+  function checkPIN() {
+    if (PIN.check(entered)) {
+      PIN.pass();
+      window.location.href = 'finance_dashboard.html';
+    } else {
+      attempts++;
+      updateDots(true);
+      entered = '';
+      const sub = document.getElementById('pin-sub');
+      if (attempts >= 5) {
+        sub.textContent = "Ko'p urinish. 30 soniya kuting...";
+        sub.style.color = 'var(--red)';
+        document.querySelectorAll('.pin-key').forEach(b => b.disabled = true);
+        setTimeout(() => {
+          document.querySelectorAll('.pin-key').forEach(b => b.disabled = false);
+          sub.textContent = 'PIN kiriting';
+          sub.style.color = '';
+          attempts = 0;
+          updateDots();
+        }, 30000);
+      } else {
+        sub.textContent = `Noto'g'ri PIN. ${5 - attempts} ta urinish qoldi`;
+        sub.style.color = 'var(--red)';
+        setTimeout(() => { updateDots(); }, 500);
+      }
+    }
+  }
+
+  function forgetPIN() {
+    if (!confirm("PINni o'chirib, hisobga qayta kirish sahifasiga o'tishni istaysizmi?")) return;
+    PIN.clear();
+    Auth.logout();
+  }
+
+  // Klaviatura
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') pressKey(e.key);
+    if (e.key === 'Backspace') delKey();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Qarzlar — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+  <style>
+    /* ── Qarz forma ── */
+    .debt-form {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .df-title {
+      font-size: 13px; font-weight: 700; color: var(--t2);
+      text-transform: uppercase; letter-spacing: .6px;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Tur tanlash — 2 ta katta toggle */
+    .type-toggle {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .type-opt {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 16px 12px;
+      border: 2px solid var(--border);
+      border-radius: 12px; background: transparent;
+      cursor: pointer; transition: all .2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .type-opt:hover { border-color: var(--border2); background: var(--bg3); }
+    .type-opt.sel-out {
+      border-color: var(--amber);
+      background: rgba(245,158,11,.08);
+    }
+    .type-opt.sel-in {
+      border-color: var(--green);
+      background: rgba(34,197,94,.08);
+    }
+    .type-opt-ico { font-size: 26px; }
+    .type-opt-title { font-size: 14px; font-weight: 700; color: var(--t1); }
+    .type-opt-sub   { font-size: 11px; color: var(--t3); text-align: center; line-height: 1.4; }
+
+    /* Form grid */
+    .df-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .df-full  { grid-column: 1 / -1; }
+
+    .df-label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: var(--t3); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 6px;
+    }
+    .df-input {
+      width: 100%; background: var(--bg3);
+      border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 11px 14px;
+      color: var(--t1); font-family: 'Inter', sans-serif;
+      font-size: 14px; outline: none; transition: all .2s;
+    }
+    .df-input::placeholder { color: var(--t3); }
+    .df-input:focus {
+      border-color: var(--purple);
+      background: rgba(124,106,255,.05);
+      box-shadow: 0 0 0 3px rgba(124,106,255,.1);
+    }
+    select.df-input option { background: var(--bg2); }
+
+    /* Pul inputi */
+    .df-money { position: relative; }
+    .df-money-pfx {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 13px; font-weight: 700; color: var(--t3); pointer-events: none;
+    }
+    .df-money .df-input { padding-left: 54px; }
+
+    /* Kun inputi */
+    .df-days { position: relative; }
+    .df-days-sfx {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 12px; font-weight: 600; color: var(--t3); pointer-events: none;
+    }
+    .df-days .df-input { padding-right: 48px; }
+
+    /* Preview karta */
+    .debt-preview {
+      display: none;
+      border-radius: 10px; overflow: hidden;
+      margin-bottom: 16px; animation: fadeUp .25s ease;
+    }
+    .debt-preview.show { display: block; }
+    .dp-inner {
+      padding: 16px; display: flex; align-items: center; gap: 14px;
+    }
+    .dp-inner.out { background: rgba(245,158,11,.08); border: 1.5px solid rgba(245,158,11,.25); border-radius: 10px; }
+    .dp-inner.inn { background: rgba(34,197,94,.08); border: 1.5px solid rgba(34,197,94,.25); border-radius: 10px; }
+    .dp-ico { font-size: 28px; }
+    .dp-info { flex: 1; }
+    .dp-line1 { font-size: 15px; font-weight: 700; color: var(--t1); }
+    .dp-line2 { font-size: 12px; color: var(--t2); margin-top: 3px; }
+    .dp-amt { font-size: 18px; font-weight: 800; }
+    .dp-amt.out { color: var(--amber); }
+    .dp-amt.inn { color: var(--green); }
+
+    /* Ovoz tugmasi */
+    .voice-strip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 9px;
+      border: 1.5px dashed var(--border);
+      margin-bottom: 16px; cursor: pointer;
+      transition: all .2s; background: transparent;
+      font-family: 'Inter', sans-serif; width: 100%;
+    }
+    .voice-strip:hover { border-color: var(--purple); background: rgba(124,106,255,.05); }
+    .voice-strip.on { border-color: var(--red); background: var(--red-bg); }
+    .vs-ico  { font-size: 18px; }
+    .vs-text { font-size: 13px; font-weight: 600; color: var(--t2); flex: 1; text-align: left; }
+    .voice-strip.on .vs-text { color: var(--red); }
+    .vb-waves-sm { display: none; align-items: center; gap: 3px; }
+    .voice-strip.on .vb-waves-sm { display: flex; }
+    .vb-ws { width: 2px; border-radius: 2px; background: var(--red); animation: wave .8s ease infinite; }
+    .vb-ws:nth-child(1){height:6px;animation-delay:0s}
+    .vb-ws:nth-child(2){height:12px;animation-delay:.1s}
+    .vb-ws:nth-child(3){height:9px;animation-delay:.2s}
+    .vb-ws:nth-child(4){height:15px;animation-delay:.15s}
+
+    /* Saqlash tugmasi */
+    .df-save {
+      width: 100%; padding: 13px;
+      border: none; border-radius: 10px; color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 15px;
+      font-weight: 700; cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .df-save.out {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 16px rgba(245,158,11,.3);
+    }
+    .df-save.inn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      box-shadow: 0 4px 16px rgba(34,197,94,.3);
+    }
+    .df-save:hover { transform: translateY(-1px); }
+    .df-save:active { transform: translateY(0); }
+
+    /* Qarz karta (ro'yxatda) */
+    .debt-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px;
+      transition: all .2s; margin-bottom: 8px;
+    }
+    .debt-card:hover { border-color: var(--border2); }
+    .debt-card.overdue { border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.03); }
+    .dc-top { display: flex; align-items: flex-start; gap: 12px; }
+    .dc-ico { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .dc-ico.out { background: var(--amber-bg); }
+    .dc-ico.inn { background: var(--green-bg); }
+    .dc-body { flex: 1; min-width: 0; }
+    .dc-name { font-size: 14px; font-weight: 700; color: var(--t1); }
+    .dc-person { font-size: 13px; color: var(--t2); margin-top: 2px; }
+    .dc-right { text-align: right; flex-shrink: 0; }
+    .dc-amt { font-size: 17px; font-weight: 800; }
+    .dc-amt.out { color: var(--amber); }
+    .dc-amt.inn { color: var(--green); }
+    .dc-note { font-size: 11.5px; color: var(--t3); margin-top: 2px; }
+    .dc-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--border); flex-wrap: wrap; gap: 8px;
+    }
+    .dc-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .dc-acts { display: flex; gap: 6px; }
+
+    @media (max-width: 640px) {
+      .df-grid { grid-template-columns: 1fr; }
+      .type-toggle { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item on">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">🤝 Qarzlar</div>
+        <div class="topbar-subtitle">Qarzlaringizni nazorat qiling</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat s-red">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🤝</div>
+          <div class="stat-lbl">Berishim kerak</div>
+          <div class="stat-val" id="s-debt-out">0</div>
+          <div class="stat-sub" id="s-dout-c">0 ta qarz</div>
+        </div>
+        <div class="stat s-green">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">💰</div>
+          <div class="stat-lbl">Olishim kerak</div>
+          <div class="stat-val" id="s-debt-in">0</div>
+          <div class="stat-sub" id="s-din-c">0 ta qarz</div>
+        </div>
+        <div class="stat s-amber">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">⚠️</div>
+          <div class="stat-lbl">Muddati o'tgan</div>
+          <div class="stat-val" id="s-overdue">0</div>
+          <div class="stat-sub">ta qarz</div>
+        </div>
+        <div class="stat s-blue">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">✅</div>
+          <div class="stat-lbl">To'langan jami</div>
+          <div class="stat-val" id="s-paid">0</div>
+          <div class="stat-sub">ta qarz</div>
+        </div>
+      </div>
+
+      <!-- ━━━ QARZ KIRITISH FORMASI ━━━ -->
+      <div class="debt-form">
+        <div class="df-title">
+          <span>📋</span> Qarz kiriting
+          <!-- Ovoz tugmasi -->
+          <button type="button" id="voice-btn" class="voice-strip"
+            onclick="toggleVoice()"
+            style="margin-left:auto;width:auto;padding:6px 14px;margin-bottom:0">
+            <span class="vs-ico">🎙️</span>
+            <span class="vs-text" id="voice-label">Ovoz bilan aytib bering</span>
+            <div class="vb-waves-sm"><div class="vb-ws"></div><div class="vb-ws"></div><div class="vb-ws"></div><div class="vb-ws"></div></div>
+          </button>
+        </div>
+
+        <!-- Tur tanlash -->
+        <div class="type-toggle" id="type-toggle">
+          <button type="button" class="type-opt" id="opt-out" onclick="selectType('out')">
+            <span class="type-opt-ico">🤝</span>
+            <span class="type-opt-title">Men berdim</span>
+            <span class="type-opt-sub">Kimgadir qarz berdim,<br>u menga qaytarishi kerak</span>
+          </button>
+          <button type="button" class="type-opt sel-in" id="opt-in" onclick="selectType('in')">
+            <span class="type-opt-ico">💰</span>
+            <span class="type-opt-title">Men oldim</span>
+            <span class="type-opt-sub">Kimdan qarz oldim,<br>men qaytarishim kerak</span>
+          </button>
+        </div>
+
+        <!-- Preview karta -->
+        <div class="debt-preview" id="debt-preview">
+          <div class="dp-inner" id="dp-inner">
+            <div class="dp-ico" id="dp-ico">💰</div>
+            <div class="dp-info">
+              <div class="dp-line1" id="dp-line1">—</div>
+              <div class="dp-line2" id="dp-line2">—</div>
+            </div>
+            <div class="dp-amt" id="dp-amt">—</div>
+          </div>
+        </div>
+
+        <form id="debt-form" onsubmit="saveDebt(event)">
+
+          <!-- Qator 1: Kim + Qancha -->
+          <div class="df-grid">
+            <div>
+              <label class="ef-label df-label" for="df-person" id="person-label">👤 Kimdan oldingiz? *</label>
+              <input type="text" id="df-person" class="df-input"
+                placeholder="Ism, Do'st, Aka…"
+                oninput="updatePreview()"/>
+            </div>
+            <div>
+              <label class="df-label" for="df-amount">💵 Qancha? (so'm) *</label>
+              <div class="df-money">
+                <span class="df-money-pfx">so'm</span>
+                <input type="number" id="df-amount" class="df-input"
+                  placeholder="0" min="1" step="100"
+                  oninput="updatePreview()"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Qator 2: Necha kunda + Aniq sana -->
+          <div class="df-grid">
+            <div>
+              <label class="df-label" for="df-days" id="days-label">📅 Necha kunda qaytaradi?</label>
+              <div class="df-days">
+                <input type="number" id="df-days" class="df-input"
+                  placeholder="5" min="1" max="3650"
+                  oninput="daysToDate(); updatePreview()"/>
+                <span class="df-days-sfx">kun</span>
+              </div>
+            </div>
+            <div>
+              <label class="df-label" for="df-deadline">📆 Yoki aniq sana</label>
+              <input type="date" id="df-deadline" class="df-input"
+                oninput="dateTodays(); updatePreview()"/>
+            </div>
+          </div>
+
+          <!-- Sabab + Izoh -->
+          <div class="df-grid" style="margin-bottom:18px">
+            <div>
+              <label class="df-label" for="df-reason">📝 Nima uchun?</label>
+              <input type="text" id="df-reason" class="df-input"
+                placeholder="Uy uchun, Oziq-ovqat, Shoshilinch…"
+                oninput="updatePreview()"/>
+            </div>
+            <div>
+              <label class="df-label" for="df-note">💬 Qo'shimcha izoh</label>
+              <input type="text" id="df-note" class="df-input"
+                placeholder="Istalgan eslatma…"/>
+            </div>
+          </div>
+
+          <button type="submit" class="df-save inn" id="df-save-btn">
+            <span id="df-save-ico">💾</span>
+            <span id="df-save-txt">Qarzni saqlash</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ━━━ RO'YXAT ━━━ -->
+      <div class="ftabs">
+        <button class="ftab on" onclick="setTab('all',this)">Hammasi</button>
+        <button class="ftab" onclick="setTab('out',this)">🤝 Men berdim</button>
+        <button class="ftab" onclick="setTab('in',this)">💰 Men oldim</button>
+        <button class="ftab" onclick="setTab('overdue',this)">⚠️ Muddati o'tgan</button>
+        <button class="ftab" onclick="setTab('paid',this)">✅ To'langan</button>
+      </div>
+
+      <div id="debt-list"></div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  /* ── holatlar ── */
+  let curType = 'in'; // 'in' | 'out'
+  let curTab  = 'all';
+  let voiceOn = false;
+  let voiceRec = null;
+
+  /* ── tur tanlash ── */
+  function selectType(t) {
+    curType = t;
+    const optOut = document.getElementById('opt-out');
+    const optIn  = document.getElementById('opt-in');
+    const saveBtn = document.getElementById('df-save-btn');
+    const personLbl = document.getElementById('person-label');
+    const daysLbl   = document.getElementById('days-label');
+
+    optOut.className = 'type-opt' + (t==='out' ? ' sel-out' : '');
+    optIn.className  = 'type-opt' + (t==='in'  ? ' sel-in'  : '');
+
+    if (t === 'out') {
+      saveBtn.className = 'df-save out';
+      document.getElementById('df-save-ico').textContent = '🤝';
+      document.getElementById('df-save-txt').textContent = 'Bergan qarzni saqlash';
+      personLbl.textContent = '👤 Kimga berdingiz? *';
+      daysLbl.textContent   = '📅 Necha kunda qaytaradi?';
+    } else {
+      saveBtn.className = 'df-save inn';
+      document.getElementById('df-save-ico').textContent = '💰';
+      document.getElementById('df-save-txt').textContent = 'Olingan qarzni saqlash';
+      personLbl.textContent = '👤 Kimdan oldingiz? *';
+      daysLbl.textContent   = '📅 Necha kunda qaytaraman?';
+    }
+    updatePreview();
+  }
+
+  /* ── kundan sanaga ── */
+  function daysToDate() {
+    const days = parseInt(document.getElementById('df-days').value);
+    if (days > 0) {
+      document.getElementById('df-deadline').value = Utils.addDays(Utils.today(), days);
+    }
+  }
+
+  /* ── sanadan kunga ── */
+  function dateTodays() {
+    const date = document.getElementById('df-deadline').value;
+    if (date) {
+      const left = Utils.daysLeft(date);
+      if (left !== null && left > 0) {
+        document.getElementById('df-days').value = left;
+      }
+    }
+  }
+
+  /* ── preview yangilash ── */
+  function updatePreview() {
+    const person   = document.getElementById('df-person').value.trim();
+    const amount   = parseFloat(document.getElementById('df-amount').value) || 0;
+    const days     = document.getElementById('df-days').value;
+    const deadline = document.getElementById('df-deadline').value;
+    const reason   = document.getElementById('df-reason').value.trim();
+    const preview  = document.getElementById('debt-preview');
+
+    if (!person && !amount) { preview.classList.remove('show'); return; }
+
+    const isOut   = curType === 'out';
+    const inner   = document.getElementById('dp-inner');
+    inner.className = 'dp-inner ' + (isOut ? 'out' : 'inn');
+
+    document.getElementById('dp-ico').textContent = isOut ? '🤝' : '💰';
+
+    const line1 = person
+      ? (isOut ? `${person}ga berildi` : `${person}dan olindi`)
+      : (isOut ? 'Qarz berish' : 'Qarz olish');
+    document.getElementById('dp-line1').textContent = line1;
+
+    const parts = [];
+    if (reason) parts.push(reason);
+    if (days)   parts.push(`${days} kunda qaytarish`);
+    else if (deadline) parts.push(`Muddat: ${Utils.fmtDate(deadline)}`);
+    document.getElementById('dp-line2').textContent = parts.join(' · ') || '—';
+
+    const amtEl = document.getElementById('dp-amt');
+    amtEl.textContent = amount ? (isOut ? '−' : '+') + Utils.fmtMoney(amount) : '—';
+    amtEl.className   = 'dp-amt ' + (isOut ? 'out' : 'inn');
+
+    preview.classList.add('show');
+  }
+
+  /* ── ovozli kiritish ── */
+  function toggleVoice() {
+    if (voiceOn) {
+      voiceRec && voiceRec.stop();
+      voiceOn = false;
+      document.getElementById('voice-btn').classList.remove('on');
+      document.getElementById('voice-label').textContent = 'Ovoz bilan aytib bering';
+      return;
+    }
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      Toast.show("Brauzer ovozni qo'llab-quvvatlamaydi", 'err'); return;
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    voiceRec = new SR();
+    voiceRec.lang = 'uz-UZ'; voiceRec.interimResults = true;
+    voiceRec.onresult = (e) => {
+      let tr = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) tr += e.results[i][0].transcript;
+      if (e.results[e.results.length-1].isFinal) fillFromVoice(tr);
+    };
+    voiceRec.onerror = () => { voiceOn = false; document.getElementById('voice-btn').classList.remove('on'); };
+    voiceRec.onend   = () => {
+      voiceOn = false;
+      document.getElementById('voice-btn').classList.remove('on');
+      document.getElementById('voice-label').textContent = 'Ovoz bilan aytib bering';
+    };
+    voiceRec.start();
+    voiceOn = true;
+    document.getElementById('voice-btn').classList.add('on');
+    document.getElementById('voice-label').textContent = 'Tinglayapman…';
+  }
+
+  /* ── ovozdan maydonlarga ── */
+  function fillFromVoice(text) {
+    const p = Parser.parse(text);
+    if (!p) return;
+
+    // Tur aniqlash
+    if (p.type === 'debt_out') selectType('out');
+    else if (p.type === 'debt_in') selectType('in');
+
+    if (p.amount)      document.getElementById('df-amount').value = p.amount;
+    if (p.person)      document.getElementById('df-person').value = p.person;
+    if (p.daysCount)   { document.getElementById('df-days').value = p.daysCount; daysToDate(); }
+    else if (p.deadline) document.getElementById('df-deadline').value = p.deadline;
+    if (p.description) document.getElementById('df-reason').value = p.description;
+
+    updatePreview();
+    Toast.show('Ovoz qabul qilindi ✅', 'ok');
+  }
+
+  /* ── saqlash ── */
+  function saveDebt(e) {
+    e.preventDefault();
+    const person   = document.getElementById('df-person').value.trim();
+    const amount   = parseFloat(document.getElementById('df-amount').value);
+    const days     = parseInt(document.getElementById('df-days').value);
+    const deadline = document.getElementById('df-deadline').value;
+    const reason   = document.getElementById('df-reason').value.trim();
+    const note     = document.getElementById('df-note').value.trim();
+
+    if (!person)            { shakeEl('df-person'); Toast.show('Ism kiriting!', 'warn'); return; }
+    if (!amount || amount<=0) { shakeEl('df-amount'); Toast.show('Summani kiriting!', 'warn'); return; }
+
+    const debtType = curType === 'out' ? 'debt_out' : 'debt_in';
+    const debt = {
+      id:          Utils.uid(),
+      type:        debtType,
+      description: reason || (curType==='out' ? 'Berilgan qarz' : 'Olingan qarz'),
+      amount,
+      person,
+      deadline:    deadline || null,
+      daysCount:   days || null,
+      note:        note || null,
+      date:        Utils.today(),
+      createdAt:   new Date().toISOString(),
+      paid:        false,
+    };
+    DB.add('debts', debt);
+
+    if (deadline) {
+      Notifs.add({
+        type: 'info',
+        title: `📋 ${person} · ${Utils.fmtMoney(amount)}`,
+        msg: (curType==='out' ? 'Berilgan qarz' : 'Olingan qarz') + ` — Muddat: ${Utils.fmtDate(deadline)}`,
+        relatedId: debt.id
+      });
+    }
+
+    Toast.show(`✅ Saqlandi: ${Utils.fmtMoney(amount)}`, 'ok');
+
+    // Reset forma
+    ['df-person','df-amount','df-days','df-deadline','df-reason','df-note'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('debt-preview').classList.remove('show');
+
+    pageRefresh(); App.refresh();
+    document.getElementById('df-person').focus();
+  }
+
+  /* ── shake xatolik ── */
+  function shakeEl(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = 'var(--red)';
+    el.style.boxShadow   = '0 0 0 3px rgba(239,68,68,.15)';
+    setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1500);
+  }
+
+  /* ── tab ── */
+  function setTab(tab, btn) {
+    curTab = tab;
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    pageRefresh();
+  }
+
+  /* ── ro'yxat ── */
+  function pageRefresh() {
+    const all     = DB.get('debts');
+    const openOut = all.filter(d => !d.paid && d.type === 'debt_out');
+    const openIn  = all.filter(d => !d.paid && d.type === 'debt_in');
+    const overdue = all.filter(d => !d.paid && d.deadline && Utils.daysLeft(d.deadline) < 0);
+    const paid    = all.filter(d => d.paid);
+
+    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('s-debt-out', Utils.fmtShort(openOut.reduce((s,d)=>s+d.amount,0)));
+    set('s-debt-in',  Utils.fmtShort(openIn.reduce((s,d)=>s+d.amount,0)));
+    set('s-dout-c',   openOut.length + ' ta qarz');
+    set('s-din-c',    openIn.length  + ' ta qarz');
+    set('s-overdue',  overdue.length);
+    set('s-paid',     paid.length);
+
+    let list;
+    switch (curTab) {
+      case 'out':     list = openOut;  break;
+      case 'in':      list = openIn;   break;
+      case 'overdue': list = overdue;  break;
+      case 'paid':    list = paid;     break;
+      default:        list = all;
+    }
+
+    const c = document.getElementById('debt-list');
+    if (!list.length) {
+      const m = {
+        all:     ['🤝', 'Hali qarz yo\'q', 'Yuqoridagi forma orqali qarz kiriting'],
+        out:     ['🤝', 'Bergan qarz yo\'q', ''],
+        in:      ['💰', 'Olingan qarz yo\'q', ''],
+        overdue: ['✅', 'Muddati o\'tgan qarz yo\'q', 'Hammasi tartibda!'],
+        paid:    ['📭', 'To\'langan qarz yo\'q', ''],
+      };
+      const [ico, title, desc] = m[curTab] || m.all;
+      c.innerHTML = `<div class="card"><div class="empty">
+        <div class="empty-icon">${ico}</div>
+        <div class="empty-title">${title}</div>
+        <div class="empty-desc">${desc}</div>
+      </div></div>`;
+      return;
+    }
+
+    c.innerHTML = list.map(d => {
+      const isOut = d.type === 'debt_out';
+      const st    = Utils.dlStatus(d.deadline);
+      const isOD  = st?.cls === 'dl-over';
+
+      const dlChip = st
+        ? `<span class="dl ${st.cls}">${st.txt}</span>`
+        : d.deadline
+          ? `<span class="dl dl-ok">${Utils.fmtDate(d.deadline)}</span>`
+          : '';
+
+      const actions = d.paid
+        ? `<span class="badge bdg-green">✅ To'landi</span>
+           <button class="btn-icon" onclick="deleteDebt('${d.id}')" title="O'chirish">🗑</button>`
+        : `<button class="btn btn-sm ${isOut?'btn-success':'btn-success'}" onclick="markDebtPaid('${d.id}')">✓ To'landi</button>
+           <button class="btn btn-ghost btn-sm" onclick="editDeadline('${d.id}')">✏️</button>
+           <button class="btn-icon" onclick="deleteDebt('${d.id}')" title="O'chirish">🗑</button>`;
+
+      return `<div class="debt-card${isOD?' overdue':''} ani">
+        <div class="dc-top">
+          <div class="dc-ico ${isOut?'out':'inn'}">${isOut?'🤝':'💰'}</div>
+          <div class="dc-body">
+            <div class="dc-name">${d.description}</div>
+            <div class="dc-person">
+              ${isOut ? `<b>${d.person}</b> menga qaytarishi kerak` : `<b>${d.person}</b>dan olindi, men qaytaraman`}
+            </div>
+            ${d.note ? `<div class="dc-note">💬 ${d.note}</div>` : ''}
+          </div>
+          <div class="dc-right">
+            <div class="dc-amt ${isOut?'out':'inn'}">${isOut?'−':'+'}${Utils.fmtMoney(d.amount)}</div>
+            ${d.daysCount ? `<div style="font-size:11px;color:var(--t3);margin-top:3px">${d.daysCount} kun muddat</div>` : ''}
+          </div>
+        </div>
+        <div class="dc-footer">
+          <div class="dc-meta">
+            <span style="font-size:11.5px;color:var(--t3)">📅 ${Utils.fmtDate(d.date)}</span>
+            ${dlChip}
+            ${d.paid && d.paidAt ? `<span style="font-size:11.5px;color:var(--green)">To'landi: ${Utils.fmtDate(d.paidAt.split('T')[0])}</span>` : ''}
+          </div>
+          <div class="dc-acts">${actions}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── muddat o'zgartirish ── */
+  window.editDeadline = function(id) {
+    const d = DB.find('debts', id);
+    if (!d) return;
+    const nd = prompt('Yangi muddat (YYYY-MM-DD):', d.deadline || Utils.today());
+    if (!nd) return;
+    const left = Utils.daysLeft(nd);
+    DB.update('debts', id, { deadline: nd, daysCount: left > 0 ? left : 0 });
+    Toast.show('Muddat yangilandi ✅', 'ok');
+    pageRefresh();
+  };
+</script>
+</body>
+</html>

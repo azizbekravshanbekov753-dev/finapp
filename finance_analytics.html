@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Analitika — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top"><div class="sb-brand"><div class="sb-brand-icon">💰</div><div class="sb-brand-name">Fin<span>App</span></div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item on">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0"><div class="sb-uname">Foydalanuvchi</div><div class="sb-urole">Shaxsiy hisob</div></div>
+      <button class="sb-logout logout-btn">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div><div class="topbar-title">📊 Analitika & Hisobotlar</div><div class="topbar-subtitle">Kengaytirilgan statistika, grafiklar va eksport</div></div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="ReportExporter.exportCSV()" title="Excel (CSV) formatida yuklab olish">📊 Excel</button>
+        <button class="btn btn-primary btn-sm" onclick="ReportExporter.exportPDF()" title="Chop etish yoki PDF sifatida saqlash">📄 PDF Hisobot</button>
+        <button class="theme-btn">☀️</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Forecast banner -->
+      <div class="forecast-banner" id="fc-banner">
+        <div class="fc-ico">📈</div>
+        <div class="fc-body">
+          <div class="fc-title" id="fc-title">Bashorat hisoblanmoqda…</div>
+          <div class="fc-sub"  id="fc-sub">—</div>
+        </div>
+        <div class="fc-amt" id="fc-amt" style="font-size:14px;color:var(--t2)">—</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat s-purple"><div class="stat-accent"></div><div class="stat-ico">📊</div><div class="stat-lbl">Jami (barcha vaqt)</div><div class="stat-val" id="s-all">0</div></div>
+        <div class="stat s-amber"> <div class="stat-accent"></div><div class="stat-ico">📅</div><div class="stat-lbl">Bu oy</div><div class="stat-val" id="s-month">0</div></div>
+        <div class="stat s-green"> <div class="stat-accent"></div><div class="stat-ico">📆</div><div class="stat-lbl">O'tgan oy</div><div class="stat-val" id="s-prev">0</div></div>
+        <div class="stat s-red">   <div class="stat-accent"></div><div class="stat-ico">📉</div><div class="stat-lbl">Oyma-oy farq</div><div class="stat-val" id="s-diff">—</div></div>
+      </div>
+
+      <div class="g2" style="margin-bottom:16px">
+
+        <!-- Donut grafik -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🍩 Kategoriyalar bo'yicha</div></div>
+          <div class="card-body">
+            <div class="donut-wrap" id="donut-wrap">
+              <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140" id="donut-svg"></svg>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 oylik trend -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">📈 6 oylik trend</div></div>
+          <div class="card-body">
+            <div class="trend-wrap">
+              <svg class="trend-svg" id="trend-svg"></svg>
+            </div>
+            <div id="trend-labels" style="display:flex;justify-content:space-between;margin-top:6px"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Oylik solishtirma -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <div class="card-title">📊 Xarajat va qarz solishtirmasi (6 oy)</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:var(--t2)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;display:inline-block"></span>Xarajat</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--amber);border-radius:2px;display:inline-block"></span>Qarz</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="compare-bars" id="compare-bars"></div>
+          <div id="compare-labels" style="display:flex;gap:10px;margin-top:6px"></div>
+        </div>
+      </div>
+
+      <!-- Kunlik o'rtacha + eng ko'p kun -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">📆 Hafta kunlari bo'yicha</div></div>
+          <div class="card-body" id="weekday-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">🏆 Eng ko'p xarajat qilingan kunlar</div></div>
+          <div class="card-body" id="top-days"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  const COLORS = ['#7c6aff','#ef4444','#22c55e','#f59e0b','#3b82f6','#ec4899','#14b8a6','#8b5cf6'];
+
+  function pageRefresh() {
+    const exp   = DB.get('expenses');
+    const debts = DB.get('debts');
+    const today = Utils.today();
+    const month = today.slice(0,7);
+    const prev  = new Date(); prev.setMonth(prev.getMonth()-1);
+    const prevM = prev.toISOString().slice(0,7);
+
+    const thisAmt = exp.filter(e=>e.date?.startsWith(month)).reduce((s,e)=>s+e.amount,0);
+    const prevAmt = exp.filter(e=>e.date?.startsWith(prevM)).reduce((s,e)=>s+e.amount,0);
+    const allAmt  = exp.reduce((s,e)=>s+e.amount,0);
+    const diff    = thisAmt - prevAmt;
+
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    set('s-all',   Utils.fmtShort(allAmt));
+    set('s-month', Utils.fmtShort(thisAmt));
+    set('s-prev',  Utils.fmtShort(prevAmt));
+    const diffEl = document.getElementById('s-diff');
+    if(diffEl){
+      diffEl.textContent = (diff>=0?'+':'')+Utils.fmtShort(diff);
+      diffEl.style.color = diff>0?'var(--red)':'var(--green)';
+    }
+
+    renderForecast();
+    renderDonut(exp);
+    renderTrend();
+    renderCompare(exp, debts);
+    renderWeekdays(exp);
+    renderTopDays(exp);
+  }
+
+  function renderForecast(){
+    const fc=Forecast.thisMonth();
+    if(!DB.get('expenses').length){ document.getElementById('fc-banner').style.display='none'; return; }
+    document.getElementById('fc-title').textContent=`Bu oy bashorat: ${Utils.fmtMoney(fc.forecast)}`;
+    document.getElementById('fc-sub').textContent=`Kunlik o'rtacha ${Utils.fmtMoney(fc.dailyAvg)} · Oyda ${fc.daysInM} kun, ${fc.remaining} kun qoldi`;
+    document.getElementById('fc-amt').innerHTML=`<div style="font-size:22px;font-weight:800;color:var(--purple)">${Utils.fmtShort(fc.forecast)}</div><div style="font-size:11px;color:var(--t3)">bashorat</div>`;
+  }
+
+  function renderDonut(exp){
+    const svg    = document.getElementById('donut-svg');
+    const legend = document.getElementById('donut-legend');
+    if(!exp.length){svg.innerHTML='<text x="70" y="76" text-anchor="middle" fill="#64748b" font-size="12">Ma\'lumot yo\'q</text>';legend.innerHTML='';return;}
+
+    const totals={};
+    exp.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
+    const total=Object.values(totals).reduce((s,v)=>s+v,0)||1;
+    const sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+    const cx=70,cy=70,r=52,inner=34;
+    let startAngle=-Math.PI/2;
+    let paths='';
+    sorted.forEach(([cat,amt],i)=>{
+      const angle=(amt/total)*Math.PI*2;
+      const x1=cx+r*Math.cos(startAngle), y1=cy+r*Math.sin(startAngle);
+      const x2=cx+r*Math.cos(startAngle+angle), y2=cy+r*Math.sin(startAngle+angle);
+      const xi1=cx+inner*Math.cos(startAngle), yi1=cy+inner*Math.sin(startAngle);
+      const xi2=cx+inner*Math.cos(startAngle+angle), yi2=cy+inner*Math.sin(startAngle+angle);
+      const large=angle>Math.PI?1:0;
+      paths+=`<path d="M${xi1.toFixed(1)},${yi1.toFixed(1)} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${inner},${inner} 0 ${large},0 ${xi1.toFixed(1)},${yi1.toFixed(1)}" fill="${COLORS[i]}" opacity=".9"/>`;
+      startAngle+=angle;
+    });
+    svg.innerHTML=paths+`<text x="70" y="66" text-anchor="middle" fill="#f1f5f9" font-size="11" font-weight="700">${sorted.length} ta</text><text x="70" y="80" text-anchor="middle" fill="#94a3b8" font-size="9">kategoriya</text>`;
+
+    legend.innerHTML=sorted.map(([cat,amt],i)=>{
+      const info=Utils.catInfo(cat);
+      const pct=Math.round(amt/total*100);
+      return `<div class="dl-item"><div class="dl-dot" style="background:${COLORS[i]}"></div><span class="dl-name">${info.e} ${info.n}</span><span class="dl-pct">${pct}%</span></div>`;
+    }).join('');
+  }
+
+  function renderTrend(){
+    const svg    = document.getElementById('trend-svg');
+    const labels = document.getElementById('trend-labels');
+    const trend  = Forecast.monthlyTrend();
+    const max    = Math.max(...trend.map(t=>t.total),1);
+    const W=500,H=140,pad=20;
+    const pts = trend.map((t,i)=>({
+      x: pad+(i/(trend.length-1||1))*(W-pad*2),
+      y: H-pad-(t.total/max)*(H-pad*2),
+      ...t
+    }));
+
+    const path = pts.map((p,i)=>i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`).join(' ');
+    const area = `M${pts[0].x},${H} `+pts.map(p=>`L${p.x},${p.y}`).join(' ')+` L${pts[pts.length-1].x},${H} Z`;
+
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    svg.innerHTML=`
+      <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6aff" stop-opacity=".25"/><stop offset="100%" stop-color="#7c6aff" stop-opacity="0"/></linearGradient></defs>
+      <path d="${area}" fill="url(#tg)"/>
+      <path d="${path}" fill="none" stroke="#7c6aff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#7c6aff"/><title>${p.name}: ${Utils.fmtMoney(p.total)}</title>`).join('')}
+    `;
+    labels.innerHTML=trend.map(t=>`<span style="flex:1;text-align:center;font-size:10px;color:var(--t3);font-weight:600">${t.name}</span>`).join('');
+  }
+
+  function renderCompare(exp, debts){
+    const c = document.getElementById('compare-bars');
+    const l = document.getElementById('compare-labels');
+    let maxVal=1;
+    const data = Array.from({length:6},(_,i)=>{
+      const d=new Date(); d.setMonth(d.getMonth()-5+i);
+      const m=d.toISOString().slice(0,7);
+      const name=d.toLocaleDateString('uz-UZ',{month:'short'});
+      const expAmt  = exp.filter(e=>e.date?.startsWith(m)).reduce((s,e)=>s+e.amount,0);
+      const debtAmt = debts.filter(d=>d.date?.startsWith(m)).reduce((s,d)=>s+d.amount,0);
+      if(expAmt>maxVal)maxVal=expAmt; if(debtAmt>maxVal)maxVal=debtAmt;
+      return {name,expAmt,debtAmt,m};
+    });
+    c.innerHTML = data.map(d=>{
+      const ep=Math.max(3,Math.round(d.expAmt/maxVal*100));
+      const dp=Math.max(3,Math.round(d.debtAmt/maxVal*100));
+      return `<div class="cb-group" title="${d.name}&#10;Xarajat: ${Utils.fmtMoney(d.expAmt)}&#10;Qarz: ${Utils.fmtMoney(d.debtAmt)}">
+        <div class="cb-bar exp"  style="height:${ep}%"></div>
+        <div class="cb-bar debt" style="height:${dp}%"></div>
+      </div>`;
+    }).join('');
+    l.innerHTML=data.map(d=>`<span style="flex:1;text-align:center;font-size:10px;color:var(--t3);font-weight:600" class="cb-lbl">${d.name}</span>`).join('');
+  }
+
+  function renderWeekdays(exp){
+    const c=document.getElementById('weekday-chart');
+    const names=['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+    const short=['Ya','Du','Se','Ch','Pa','Ju','Sh'];
+    const totals=Array(7).fill(0);
+    exp.forEach(e=>{ if(e.date){const dow=new Date(e.date).getDay(); totals[dow]+=e.amount;} });
+    const max=Math.max(...totals,1);
+    c.innerHTML=`<div style="display:flex;align-items:flex-end;gap:6px;height:80px;padding-bottom:4px">${
+      totals.map((v,i)=>{
+        const pct=Math.max(4,Math.round(v/max*100));
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;height:${pct}%;background:var(--purple);border-radius:4px 4px 0 0;min-height:3px;transition:height .4s" title="${names[i]}: ${Utils.fmtMoney(v)}"></div>
+          <span style="font-size:9px;color:var(--t3);font-weight:600">${short[i]}</span>
+        </div>`;
+      }).join('')
+    }</div>`;
+  }
+
+  function renderTopDays(exp){
+    const c=document.getElementById('top-days');
+    if(!exp.length){c.innerHTML=`<div class="empty" style="padding:24px"><div class="empty-icon">📆</div><div class="empty-title">Ma'lumot yo'q</div></div>`;return;}
+    const byDay={};
+    exp.forEach(e=>{if(e.date) byDay[e.date]=(byDay[e.date]||0)+e.amount;});
+    const top=Object.entries(byDay).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    c.innerHTML=top.map(([date,amt],i)=>`
+      <div class="irow ani" style="padding:10px 14px;margin-bottom:5px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--t2);flex-shrink:0">${i+1}</div>
+        <div class="irow-info"><div class="irow-name">${Utils.fmtDate(date)}</div></div>
+        <div class="irow-amt amt-red">−${Utils.fmtMoney(amt)}</div>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>

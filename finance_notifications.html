@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Bildirishnomalar — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item on"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">🔔 Bildirishnomalar</div>
+        <div class="topbar-subtitle">Eslatmalar va tizim xabarlari</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="readAll()">✓ Hammasini o'qildi</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Tozalash</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat s-purple">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🔔</div>
+          <div class="stat-lbl">Jami</div>
+          <div class="stat-val" id="s-total">0</div>
+        </div>
+        <div class="stat s-red">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🔴</div>
+          <div class="stat-lbl">O'qilmagan</div>
+          <div class="stat-val" id="s-unread">0</div>
+        </div>
+        <div class="stat s-amber">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">⚠️</div>
+          <div class="stat-lbl">Muddati o'tgan</div>
+          <div class="stat-val" id="s-overdue">0</div>
+        </div>
+        <div class="stat s-green">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">✅</div>
+          <div class="stat-lbl">To'langan (bugun)</div>
+          <div class="stat-val" id="s-paid-today">0</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="ftabs">
+        <button class="ftab on" onclick="setFilter('all',this)">Hammasi</button>
+        <button class="ftab" onclick="setFilter('unread',this)">🔵 O'qilmagan</button>
+        <button class="ftab" onclick="setFilter('danger',this)">🔴 Kechikkan</button>
+        <button class="ftab" onclick="setFilter('warning',this)">⚠️ Bugungi</button>
+        <button class="ftab" onclick="setFilter('success',this)">✅ To'langan</button>
+        <button class="ftab" onclick="setFilter('info',this)">📋 Ma'lumot</button>
+      </div>
+
+      <!-- Notif list -->
+      <div id="notif-list"></div>
+
+      <!-- Qarzlar holati -->
+      <div style="margin-top:20px" class="card">
+        <div class="card-head">
+          <div class="card-title">📊 Muddatli qarzlar holati</div>
+          <a href="finance_debts.html" class="btn btn-ghost btn-sm">Qarzlarga →</a>
+        </div>
+        <div class="card-body" id="debt-status"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  let nFilter = 'all';
+
+  function pageRefresh() {
+    const all     = Notifs.all();
+    const today   = Utils.today();
+    const overdue = DB.get('debts').filter(d => !d.paid && d.deadline && Utils.daysLeft(d.deadline)<0);
+    const paid    = DB.get('debts').filter(d => d.paid && d.paidAt?.startsWith(today));
+
+    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('s-total',      all.length);
+    set('s-unread',     all.filter(n=>!n.read).length);
+    set('s-overdue',    overdue.length);
+    set('s-paid-today', paid.length);
+
+    let list = all;
+    if (nFilter === 'unread')  list = all.filter(n => !n.read);
+    else if (nFilter !== 'all') list = all.filter(n => n.type === nFilter);
+
+    renderNotifs(list);
+    renderDebtStatus();
+  }
+
+  function renderNotifs(list) {
+    const c = document.getElementById('notif-list');
+    if (!list.length) {
+      c.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">Bildirishnoma yo'q</div><div class="empty-desc">Qarz muddatlari yaqinlashganda bu yerda eslatmalar paydo bo'ladi</div></div></div>`;
+      return;
+    }
+    const icons = { danger:'🚨', warning:'⚠️', success:'✅', info:'ℹ️' };
+    const bgs   = { danger:'var(--red-bg)', warning:'var(--amber-bg)', success:'var(--green-bg)', info:'var(--blue-bg)' };
+    c.innerHTML = list.map(n => `
+      <div class="nrow ${n.read?'':'unread'} ani">
+        <div class="nrow-ico" style="background:${bgs[n.type]||bgs.info}">${icons[n.type]||icons.info}</div>
+        <div class="nrow-body">
+          <div class="nrow-title">${n.title}</div>
+          <div class="nrow-msg">${n.msg}</div>
+          <div class="nrow-time">${Utils.timeAgo(n.at)}</div>
+        </div>
+        <div class="nrow-acts">
+          ${!n.read
+            ? `<button class="btn btn-ghost btn-xs" onclick="readOne('${n.id}')">O'qildi</button>`
+            : `<span style="font-size:11px;color:var(--t3)">✓ O'qildi</span>`
+          }
+          <button class="btn-icon" onclick="delOne('${n.id}')" style="width:28px;height:28px;font-size:13px">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderDebtStatus() {
+    const c = document.getElementById('debt-status');
+    const list = DB.get('debts').filter(d => !d.paid && d.deadline)
+                   .sort((a,b) => (Utils.daysLeft(a.deadline)??999)-(Utils.daysLeft(b.deadline)??999));
+    if (!list.length) {
+      c.innerHTML = `<div class="empty" style="padding:28px"><div class="empty-icon">✅</div><div class="empty-title">Hamma qarzlar tartibda</div></div>`;
+      return;
+    }
+    c.innerHTML = list.map(d => {
+      const isOut = d.type==='debt_out';
+      const st = Utils.dlStatus(d.deadline);
+      return `<div class="irow ani">
+        <div class="irow-ico ${isOut?'ico-amber':'ico-green'}">${isOut?'🤝':'💰'}</div>
+        <div class="irow-info">
+          <div class="irow-name">${d.description}${d.person?` · <span style="font-weight:400;color:var(--t3)">${d.person}</span>`:''}</div>
+          <div class="irow-meta">
+            <span>${isOut?'Men berdim':'Men oldim'}</span>
+            <span>·</span>
+            <span>Muddat: ${Utils.fmtDate(d.deadline)}</span>
+            ${st?`<span class="dl ${st.cls}">${st.txt}</span>`:''}
+          </div>
+        </div>
+        <div class="irow-amt ${isOut?'amt-amber':'amt-green'}">${isOut?'−':'+'}${Utils.fmtMoney(d.amount)}</div>
+        <div class="irow-actions">
+          <button class="btn btn-success btn-xs" onclick="markDebtPaid('${d.id}')">✓ To'landi</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function setFilter(f, btn) {
+    nFilter = f;
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    pageRefresh();
+  }
+
+  function readOne(id) { Notifs.read(id); pageRefresh(); }
+  function delOne(id)  { Notifs.del(id);  pageRefresh(); }
+
+  function readAll() {
+    Notifs.readAll();
+    pageRefresh();
+    Toast.show("Hammasi o'qildi ✅",'ok');
+  }
+
+  function clearAll() {
+    if (!confirm("Barcha bildirishnomalarni o'chirishni istaysizmi?")) return;
+    Notifs.clear();
+    pageRefresh();
+    Toast.show('Tozalandi','info');
+  }
+
+  // markDebtPaid dan keyin
+  const _origPaid = window.markDebtPaid;
+  window.markDebtPaid = function(id) {
+    if (_origPaid) _origPaid(id);
+    setTimeout(pageRefresh, 150);
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Kirish — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+
+<div class="auth-page">
+
+  <!-- Chap tomon -->
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">💰</div>
+      <div>
+        <div class="auth-brand-name">Fin<span>App</span></div>
+        <div style="font-size:11px;color:var(--t3);margin-top:1px">Shaxsiy moliya boshqaruvi</div>
+      </div>
+    </div>
+
+    <div class="auth-tagline">Moliyangizni<br><span>nazorat qiling</span></div>
+    <div class="auth-desc">Ovozli va matnli kiritish orqali xarajatlar va qarzlarni tezkor qayd eting. Muddatlar, eslatmalar, statistika — barchasi bir joyda.</div>
+
+    <div class="auth-features">
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🎙️</div>
+        <span>Ovozli kiritish — gapiring, tizim o'zi tushunadi</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🤝</div>
+        <span>Qarz muddatlari va avtomatik eslatmalar</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📊</div>
+        <span>Kunlik va oylik xarajat statistikasi</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🔒</div>
+        <span>Har bir hisob faqat o'z egasiga ko'rinadi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- O'ng tomon — forma -->
+  <div class="auth-right">
+    <div class="auth-box">
+
+      <div class="auth-box-title" id="form-title">Xush kelibsiz</div>
+      <div class="auth-box-sub" id="form-sub">Hisobingizga kirish uchun ma'lumotlaringizni kiriting</div>
+
+      <!-- Tablar -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Kirish</button>
+        <button class="auth-tab" id="tab-reg" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
+      </div>
+
+      <!-- LOGIN FORMA -->
+      <form id="login-form" onsubmit="doLogin(event)">
+        <div class="field">
+          <label class="field-label" for="l-user">Foydalanuvchi nomi</label>
+          <div class="field-wrap">
+            <span class="field-icon">👤</span>
+            <input class="field-input" id="l-user" type="text" placeholder="username" autocomplete="username" required/>
+          </div>
+          <div class="field-err" id="l-user-err"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="l-pass">Parol</label>
+          <div class="field-wrap">
+            <span class="field-icon">🔒</span>
+            <input class="field-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" required/>
+            <button type="button" class="field-eye" onclick="toggleEye('l-pass',this)">👁</button>
+          </div>
+          <div class="field-err" id="l-pass-err"></div>
+        </div>
+        <div class="field-err" id="l-general-err" style="font-size:13px;margin-bottom:12px;display:none;padding:10px 14px;background:var(--red-bg);border-radius:8px;border:1px solid rgba(239,68,68,.2)"></div>
+        <button class="btn-full" type="submit" id="login-btn">
+          <span id="login-btn-text">Kirish →</span>
+        </button>
+      </form>
+
+      <!-- REGISTER FORMA -->
+      <form id="reg-form" style="display:none" onsubmit="doRegister(event)">
+        <div class="field">
+          <label class="field-label" for="r-user">Foydalanuvchi nomi</label>
+          <div class="field-wrap">
+            <span class="field-icon">👤</span>
+            <input class="field-input" id="r-user" type="text" placeholder="masalan: ali99" autocomplete="username" required/>
+          </div>
+          <div class="field-err" id="r-user-err"></div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px">Kamida 3 ta belgi, faqat harf va raqam</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="r-pass">Parol</label>
+          <div class="field-wrap">
+            <span class="field-icon">🔒</span>
+            <input class="field-input" id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password" required/>
+            <button type="button" class="field-eye" onclick="toggleEye('r-pass',this)">👁</button>
+          </div>
+          <div class="field-err" id="r-pass-err"></div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px">Kamida 6 ta belgi</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="r-pass2">Parolni tasdiqlang</label>
+          <div class="field-wrap">
+            <span class="field-icon">🔒</span>
+            <input class="field-input" id="r-pass2" type="password" placeholder="••••••••" autocomplete="new-password" required/>
+            <button type="button" class="field-eye" onclick="toggleEye('r-pass2',this)">👁</button>
+          </div>
+          <div class="field-err" id="r-pass2-err"></div>
+        </div>
+        <div class="field-err" id="r-general-err" style="font-size:13px;margin-bottom:12px;display:none;padding:10px 14px;background:var(--red-bg);border-radius:8px;border:1px solid rgba(239,68,68,.2)"></div>
+        <button class="btn-full" type="submit" id="reg-btn">
+          <span id="reg-btn-text">Hisob yaratish →</span>
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // Agar allaqachon login qilingan bo'lsa dashboard'ga o'tkazish
+  (function() {
+    const sess = sessionStorage.getItem('fin_session');
+    if (sess) window.location.href = 'finance_dashboard.html';
+  })();
+
+  let mode = 'login';
+
+  function switchTab(t) {
+    mode = t;
+    document.getElementById('login-form').style.display = t === 'login' ? '' : 'none';
+    document.getElementById('reg-form').style.display   = t === 'register' ? '' : 'none';
+    document.getElementById('tab-login').classList.toggle('active', t === 'login');
+    document.getElementById('tab-reg').classList.toggle('active', t === 'register');
+    clearErrors();
+
+    if (t === 'login') {
+      document.getElementById('form-title').textContent = 'Xush kelibsiz';
+      document.getElementById('form-sub').textContent   = "Hisobingizga kirish uchun ma'lumotlaringizni kiriting";
+    } else {
+      document.getElementById('form-title').textContent = "Hisob yarating";
+      document.getElementById('form-sub').textContent   = "Bir daqiqada bepul hisob yarating";
+    }
+  }
+
+  function clearErrors() {
+    ['l-user-err','l-pass-err','l-general-err','r-user-err','r-pass-err','r-pass2-err','r-general-err'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = ''; el.style.display = 'none'; el.classList.remove('show'); }
+    });
+    document.querySelectorAll('.field-input').forEach(i => i.classList.remove('error'));
+  }
+
+  function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.classList.add('show');
+  }
+
+  function toggleEye(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  function setLoading(btnId, textId, loading) {
+    const btn = document.getElementById(btnId);
+    const txt = document.getElementById(textId);
+    btn.disabled = loading;
+    txt.innerHTML = loading ? '<span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite"></span>' : (btnId === 'login-btn' ? 'Kirish →' : 'Hisob yaratish →');
+  }
+
+  const API_BASE = 'https://finapp-production-52be.up.railway.app';
+  const API_KEY  = 'finapp2024secret';
+
+  async function apiLogin(username, password) {
+    try {
+      const r = await fetch(`${API_BASE}/api/login`, {
+        method: 'POST',
+        headers: { 'X-API-Key': API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.toLowerCase(), password }),
+      });
+      return await r.json();
+    } catch { return null; }
+  }
+
+  async function apiRegister(username, password) {
+    try {
+      const r = await fetch(`${API_BASE}/api/register`, {
+        method: 'POST',
+        headers: { 'X-API-Key': API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.toLowerCase(), password }),
+      });
+      return await r.json();
+    } catch { return null; }
+  }
+
+  function doLogin(e) {
+    e.preventDefault();
+    clearErrors();
+    const user = document.getElementById('l-user').value.trim();
+    const pass = document.getElementById('l-pass').value;
+    if (!user) { showErr('l-user-err', 'Foydalanuvchi nomini kiriting'); document.getElementById('l-user').classList.add('error'); return; }
+    if (!pass) { showErr('l-pass-err', 'Parolni kiriting'); document.getElementById('l-pass').classList.add('error'); return; }
+
+    setLoading('login-btn', 'login-btn-text', true);
+
+    // 1. Avval API serverdan tekshirish
+    apiLogin(user, pass).then(apiRes => {
+      if (apiRes && apiRes.ok) {
+        // API dan kelgan user ni localga ham saqlash
+        const localUsers = Auth.getUsers();
+        const uname = user.trim().toLowerCase();
+        if (!localUsers.find(u => u.username === uname)) {
+          localUsers.push({
+            id: apiRes.user.id,
+            username: uname,
+            displayName: apiRes.user.displayName,
+            password: pass,
+            passwordHash: Auth._hash(pass),
+            createdAt: new Date().toISOString(),
+          });
+          Auth.saveUsers(localUsers);
+        }
+        // API URL ni saqlash
+        localStorage.setItem('fin_api_url', API_BASE);
+        setLoading('login-btn', 'login-btn-text', false);
+        Auth.setSession(apiRes.user);
+        const devKey = 'fin_device_' + apiRes.user.id;
+        window.location.href = localStorage.getItem(devKey) ? 'finance_dashboard.html' : 'finance_device.html';
+        return;
+      }
+
+      // 2. API ishlamasa lokal tekshirish
+      const res = Auth.login(user, pass);
+      setLoading('login-btn', 'login-btn-text', false);
+      if (!res.ok) { showErr('l-general-err', '❌ ' + res.msg); return; }
+      Auth.setSession(res.user);
+      const devKey = 'fin_device_' + res.user.id;
+      window.location.href = localStorage.getItem(devKey) ? 'finance_dashboard.html' : 'finance_device.html';
+    });
+  }
+
+  function doRegister(e) {
+    e.preventDefault();
+    clearErrors();
+    const user  = document.getElementById('r-user').value.trim();
+    const pass  = document.getElementById('r-pass').value;
+    const pass2 = document.getElementById('r-pass2').value;
+    let valid = true;
+
+    if (!user || user.length < 3) {
+      showErr('r-user-err', "Kamida 3 ta belgi bo'lishi kerak");
+      document.getElementById('r-user').classList.add('error');
+      valid = false;
+    }
+    if (!pass || pass.length < 6) {
+      showErr('r-pass-err', "Kamida 6 ta belgi bo'lishi kerak");
+      document.getElementById('r-pass').classList.add('error');
+      valid = false;
+    }
+    if (pass && pass2 && pass !== pass2) {
+      showErr('r-pass2-err', 'Parollar mos kelmaydi');
+      document.getElementById('r-pass2').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+
+    setLoading('reg-btn', 'reg-btn-text', true);
+
+    // API ga ham ro'yxatdan o'tkazish
+    apiRegister(user, pass).then(apiRes => {
+      if (apiRes && !apiRes.ok && apiRes.error && apiRes.error.includes('band')) {
+        setLoading('reg-btn', 'reg-btn-text', false);
+        showErr('r-general-err', '❌ Bu username allaqachon band!');
+        return;
+      }
+      // Lokal ham saqlash
+      const res = Auth.register(user, pass);
+      setLoading('reg-btn', 'reg-btn-text', false);
+      if (!res.ok) { showErr('r-general-err', '❌ ' + res.msg); return; }
+      localStorage.setItem('fin_api_url', API_BASE);
+      Auth.setSession(res.user);
+      window.location.href = 'finance_device.html';
+    });
+  }
+
+  // Spin animatsiyasi
+  const style = document.createElement('style');
+  style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

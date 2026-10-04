@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item on">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-subtitle" id="today-label"></div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="privacy-btn" onclick="PrivacyMode.toggle()" title="Balanslarni yashirish/ko'rsatish">👁️ Balanslar</button>
+        <button class="theme-btn" title="Tema">☀️</button>
+        <a href="finance_notifications.html" class="btn btn-ghost btn-sm" style="position:relative;padding:8px 10px">
+          🔔<span class="sb-badge" style="position:absolute;top:-4px;right:-4px;min-width:16px;padding:1px 4px">0</span>
+        </a>
+        <span style="font-size:13px;color:var(--t2);display:none" id="topbar-user">Salom, <strong class="current-user" style="color:var(--t1)"></strong></span>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Push bildirishnoma banner -->
+      <div class="push-banner" id="push-banner" style="display:none">
+        <span class="pb-ico">🔔</span>
+        <div class="pb-text">
+          <strong>Brauzer bildirishnomalarini yoqing</strong>
+          Qarz muddatlari kelganda brauzer orqali xabar oling
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="enablePush()">Yoqish</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('push-banner').style.display='none'">✕</button>
+      </div>
+
+      <!-- Forecast banner -->
+      <div class="forecast-banner" id="fc-banner" style="display:none">
+        <div class="fc-ico">📈</div>
+        <div class="fc-body">
+          <div class="fc-title" id="fc-title">Bashorat yuklanmoqda…</div>
+          <div class="fc-sub"  id="fc-sub"></div>
+        </div>
+        <div class="fc-amt" id="fc-amt"></div>
+      </div>
+
+      <!-- Statistika -->
+      <div class="stats">
+        <div class="stat s-purple">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">💸</div>
+          <div class="stat-lbl">Bugungi xarajat</div>
+          <div class="stat-val privacy-val" id="s-today">0</div>
+          <div class="stat-sub" id="s-today-c">0 ta qayd</div>
+        </div>
+        <div class="stat s-amber">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">📅</div>
+          <div class="stat-lbl">Bu oylik xarajat</div>
+          <div class="stat-val privacy-val" id="s-month">0</div>
+          <div class="stat-sub" id="s-month-c">0 ta qayd</div>
+        </div>
+        <div class="stat s-red">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🤝</div>
+          <div class="stat-lbl">Berishim kerak</div>
+          <div class="stat-val privacy-val" id="s-debt-out">0</div>
+          <div class="stat-sub" id="s-dout-c">0 ta qarz</div>
+        </div>
+        <div class="stat s-green">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">💰</div>
+          <div class="stat-lbl">Olishim kerak</div>
+          <div class="stat-val privacy-val" id="s-debt-in">0</div>
+          <div class="stat-sub" id="s-din-c">0 ta qarz</div>
+        </div>
+      </div>
+
+      <!-- AI ADVISOR INSIGHTS -->
+      <div class="ai-advisor-banner" id="ai-advisor-box">
+        <div class="ai-advisor-header">
+          <span class="ai-badge">AI Maslahatchi</span>
+          <span class="ai-advisor-title">Aqlli Moliyaviy Tahlillar</span>
+        </div>
+        <div class="ai-cards-grid" id="ai-insights-list">
+          <!-- Dinamik chiqadi -->
+        </div>
+      </div>
+
+      <!-- Kiritish paneli -->
+      <div class="input-panel">
+        <div class="ip-title">
+          <span>✏️</span> Tezkor yozuv
+          <span style="margin-left:auto;font-size:11px;color:var(--purple);background:rgba(124,106,255,.1);padding:3px 10px;border-radius:20px;font-weight:600;text-transform:none">Matn yoki 🎙️</span>
+        </div>
+        <form id="input-form">
+          <div class="ip-row">
+            <textarea id="main-input" class="ip-area" rows="2"
+              placeholder="&quot;Non 5000&quot; · &quot;Do'stimga 50000 qarz berdim 5 kunda&quot;"></textarea>
+            <button type="button" class="mic-btn">🎙️</button>
+            <button type="submit" class="btn btn-primary" style="height:48px;padding:0 20px;align-self:flex-end">Saqlash</button>
+          </div>
+        </form>
+        <div class="voice-bar">
+          <div class="vb-waves"><div class="vb-w"></div><div class="vb-w"></div><div class="vb-w"></div><div class="vb-w"></div><div class="vb-w"></div></div>
+          <span class="vb-text">Tinglanmoqda…</span>
+        </div>
+        <div class="parse-preview" id="parse-preview"></div>
+        <div class="samples">
+          <span style="font-size:11px;color:var(--t3);align-self:center">Namuna:</span>
+          <button class="sample">Non 5000</button>
+          <button class="sample">Taksi 12000 so'm</button>
+          <button class="sample">Do'stimga 50000 qarz berdim 5 kunda</button>
+          <button class="sample">Akamdan 100 ming qarz oldim</button>
+        </div>
+      </div>
+
+      <!-- MAQSADLAR VA HAMYONLAR (YANGI WIDGETLAR) -->
+      <div class="g2" style="margin-bottom:16px">
+        <!-- Maqsadlar mini -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">🎯 Jamg'arma Maqsadlari</div>
+            <a href="finance_goals.html" class="btn btn-ghost btn-sm">Barchasi →</a>
+          </div>
+          <div class="card-body" id="goals-mini-list"></div>
+        </div>
+
+        <!-- Hamyonlar mini -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">💳 Hamyonlar & Balans</div>
+            <a href="finance_wallets.html" class="btn btn-ghost btn-sm">Boshqarish →</a>
+          </div>
+          <div class="card-body" id="wallets-mini-list"></div>
+        </div>
+      </div>
+
+      <!-- HEALTH SCORE & 50/30/20 -->
+      <div class="g2" style="margin-bottom:16px">
+        <div id="health-score-box"></div>
+        <div id="rule-503020-box"></div>
+      </div>
+
+      <!-- SMS PARSER -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <div class="card-title">📱 Click / Payme / Uzum SMS Tahlili</div>
+          <span style="font-size:11px;color:var(--t3)">SMS matnini nusxalab joylashtiring</span>
+        </div>
+        <div class="card-body">
+          <div class="sms-parser-box" style="margin-bottom:0">
+            <textarea class="sms-area" id="sms-input"
+              placeholder="Masalan: Click. Karta *1234 dan 45 000 UZS chiqim. Qoldiq: 1 234 000 UZS..."></textarea>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-primary btn-sm" onclick="parseSMS()">🔍 Tahlil qilish</button>
+              <button class="btn btn-ghost btn-sm" onclick="clearSMS()">✕ Tozalash</button>
+            </div>
+            <div class="sms-result" id="sms-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Byudjet holati (qisqa) -->
+      <div class="card" id="budget-overview" style="margin-bottom:16px;display:none">
+        <div class="card-head">
+          <div class="card-title">🎯 Bu oylik byudjet</div>
+          <a href="finance_budget.html" class="btn btn-ghost btn-sm">Boshqarish →</a>
+        </div>
+        <div class="card-body" id="budget-mini"></div>
+      </div>
+
+      <!-- Grafik + Kategoriya -->
+      <div class="g2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📊 Haftalik xarajatlar</div>
+            <a href="finance_analytics.html" class="btn btn-ghost btn-sm">Batafsil →</a>
+          </div>
+          <div class="card-body">
+            <div class="bars" id="week-bars"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📂 Kategoriyalar</div>
+          </div>
+          <div class="card-body" id="cat-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- Oxirgi yozuvlar -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">💸 Oxirgi xarajatlar</div>
+            <a href="finance_expenses.html" class="btn btn-ghost btn-sm">Barchasi →</a>
+          </div>
+          <div class="card-body" id="recent-exp"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">🤝 Ochiq qarzlar</div>
+            <a href="finance_debts.html" class="btn btn-ghost btn-sm">Barchasi →</a>
+          </div>
+          <div class="card-body" id="recent-debts"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  function pageRefresh() {
+    const exp    = DB.get('expenses');
+    const debts  = DB.get('debts');
+    const today  = Utils.today();
+    const month  = today.slice(0,7);
+
+    const todayExp  = exp.filter(e => e.date === today);
+    const monthExp  = exp.filter(e => e.date?.startsWith(month));
+    const openOut   = debts.filter(d => !d.paid && d.type==='debt_out');
+    const openIn    = debts.filter(d => !d.paid && d.type==='debt_in');
+
+    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('s-today',   Utils.fmtShort(todayExp.reduce((s,e)=>s+e.amount,0)));
+    set('s-month',   Utils.fmtShort(monthExp.reduce((s,e)=>s+e.amount,0)));
+    set('s-debt-out',Utils.fmtShort(openOut.reduce((s,d)=>s+d.amount,0)));
+    set('s-debt-in', Utils.fmtShort(openIn.reduce((s,d)=>s+d.amount,0)));
+    set('s-today-c', todayExp.length + ' ta qayd');
+    set('s-month-c', monthExp.length + ' ta qayd');
+    set('s-dout-c',  openOut.length  + ' ta qarz');
+    set('s-din-c',   openIn.length   + ' ta qarz');
+
+    renderAIAdvisor();
+    renderGoalsMini();
+    renderWalletsMini();
+    renderRecentExp();
+    renderRecentDebts();
+    renderWeekBars();
+    renderCatBreakdown();
+    renderForecast();
+    renderBudgetMini();
+
+    // Yangi widgetlar
+    if (typeof HealthScore !== 'undefined') {
+      HealthScore.render('health-score-box');
+      HealthScore.render503020('rule-503020-box');
+    }
+  }
+
+  // SMS Parser funksiyalari
+  function parseSMS() {
+    const text = document.getElementById('sms-input').value;
+    const res  = document.getElementById('sms-result');
+    if (!text.trim()) { Toast.show('SMS matnini kiriting', 'warn'); return; }
+    const parsed = SMSParser.parse(text);
+    if (!parsed) {
+      res.className = 'sms-result show';
+      res.innerHTML = `<div style="color:var(--red)">❌ SMS dan summa topilmadi. Boshqa format yoki miqdorni tekshiring.</div>`;
+      return;
+    }
+    const cat = Utils.catInfo(parsed.category);
+    res.className = 'sms-result show';
+    res.innerHTML = `
+      <div class="sms-result-row">
+        <span style="color:var(--t3)">💰 Summa:</span>
+        <strong style="color:var(--green)">${Utils.fmtMoney(parsed.amount)}</strong>
+      </div>
+      <div class="sms-result-row">
+        <span style="color:var(--t3)">${cat.e} Toifa:</span>
+        <span>${cat.n}</span>
+      </div>
+      <div class="sms-result-row">
+        <span style="color:var(--t3)">📝 Tavsif:</span>
+        <span>${parsed.description}</span>
+      </div>
+      ${parsed.source ? `<div class="sms-result-row"><span style="color:var(--t3)">📲 Manba:</span><span>${parsed.source}</span></div>` : ''}
+      <div style="margin-top:10px">
+        <button class="btn btn-success btn-sm" onclick="saveSMSExpense()">✅ Xarajat sifatida saqlash</button>
+      </div>
+    `;
+    window._lastSMSParsed = parsed;
+  }
+
+  function saveSMSExpense() {
+    if (!window._lastSMSParsed) return;
+    const ok = SMSParser.addToExpenses(window._lastSMSParsed);
+    if (ok) {
+      Toast.show('Xarajat saqlandi ✅', 'ok');
+      FX.onSave();
+      document.getElementById('sms-input').value = '';
+      document.getElementById('sms-result').className = 'sms-result';
+      window._lastSMSParsed = null;
+      pageRefresh();
+    }
+  }
+
+  function clearSMS() {
+    document.getElementById('sms-input').value = '';
+    document.getElementById('sms-result').className = 'sms-result';
+    window._lastSMSParsed = null;
+  }
+
+
+  function renderAIAdvisor() {
+    const box = document.getElementById('ai-insights-list');
+    if (!box) return;
+    const insights = AIAdvisor.getInsights();
+    box.innerHTML = insights.map(i => {
+      return `
+        <div class="ai-card ${i.type}">
+          <div class="ai-card-ico">${i.icon}</div>
+          <div class="ai-card-body">
+            <div class="ai-card-title">${i.title}</div>
+            <div class="ai-card-desc">${i.text}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderGoalsMini() {
+    const box = document.getElementById('goals-mini-list');
+    if (!box) return;
+    const goals = Goals.getAll();
+    if (goals.length === 0) {
+      box.innerHTML = `<div style="text-align:center;padding:16px;color:var(--t3);font-size:12px">Maqsadlar yo'q. <a href="finance_goals.html" style="color:var(--purple)">+ Yaratish</a></div>`;
+      return;
+    }
+    box.innerHTML = goals.slice(0, 2).map(g => {
+      const pct = Math.min(100, Math.round(((g.currentAmount || 0) / (g.targetAmount || 1)) * 100));
+      return `
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600">${g.icon || '🎯'} ${g.title}</span>
+            <span style="font-size:12px;color:var(--t2);font-weight:700">${pct}%</span>
+          </div>
+          <div class="goal-progress-wrap" style="height:6px;margin-bottom:4px">
+            <div class="goal-progress-bar" style="width:${pct}%;background:var(--purple-g)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3)">
+            <span>${Utils.fmtMoney(g.currentAmount)}</span>
+            <span>/ ${Utils.fmtMoney(g.targetAmount)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderWalletsMini() {
+    const box = document.getElementById('wallets-mini-list');
+    if (!box) return;
+    const wallets = Wallets.getAll();
+    if (wallets.length === 0) {
+      box.innerHTML = `<div style="text-align:center;padding:16px;color:var(--t3);font-size:12px">Hamyonlar yo'q. <a href="finance_wallets.html" style="color:var(--purple);font-weight:600">+ Qo'shish</a></div>`;
+      return;
+    }
+    box.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${wallets.slice(0, 3).map(w => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span>${w.icon}</span>
+              <span style="font-size:13px;font-weight:600">${w.name}</span>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:var(--t1)">${Utils.fmtMoney(w.balance || 0)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderRecentExp() {
+    const c = document.getElementById('recent-exp');
+    const list = DB.get('expenses').slice(0,5);
+    if (!list.length) { c.innerHTML=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-title">Xarajat yo'q</div><div class="empty-desc">Birinchi xarajatingizni kiriting</div></div>`; return; }
+    c.innerHTML = list.map(e => renderExpenseRow(e)).join('');
+  }
+
+  function renderRecentDebts() {
+    const c = document.getElementById('recent-debts');
+    const list = DB.get('debts').filter(d=>!d.paid).slice(0,5);
+    if (!list.length) { c.innerHTML=`<div class="empty"><div class="empty-icon">🤝</div><div class="empty-title">Qarz yo'q</div><div class="empty-desc">Qarz berganda shu yerda ko'rinadi</div></div>`; return; }
+    c.innerHTML = list.map(d => renderDebtRow(d)).join('');
+  }
+
+  function renderWeekBars() {
+    const c = document.getElementById('week-bars');
+    const exp = DB.get('expenses');
+    const labels = ['Du','Se','Ch','Pa','Ju','Sh','Ya'];
+    let max = 1;
+    const days = Array.from({length:7},(_,i)=>{
+      const date = Utils.addDays(Utils.today(),i-6);
+      const total = exp.filter(e=>e.date===date).reduce((s,e)=>s+e.amount,0);
+      const lbl = labels[(new Date(date).getDay()+6)%7];
+      if(total>max) max=total;
+      return {date,total,lbl};
+    });
+    if(!days.some(d=>d.total>0)){ c.innerHTML=`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:13px">Ma'lumot yo'q</div>`; return; }
+    c.innerHTML = days.map(d=>{
+      const pct = Math.max(4,Math.round(d.total/max*100));
+      return `<div class="bar-w" title="${Utils.fmtMoney(d.total)}"><div class="bar" style="height:${pct}%"></div><div class="bar-lbl">${d.lbl}</div></div>`;
+    }).join('');
+  }
+
+  function renderCatBreakdown() {
+    const c = document.getElementById('cat-breakdown');
+    const exp = DB.get('expenses');
+    if(!exp.length){ c.innerHTML=`<div class="empty" style="padding:24px"><div class="empty-icon">📊</div><div class="empty-title">Ma'lumot yo'q</div></div>`; return; }
+    const totals={};
+    exp.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
+    const total=Object.values(totals).reduce((s,v)=>s+v,0)||1;
+    const colors=['var(--purple)','var(--red)','var(--green)','var(--amber)','var(--blue)'];
+    c.innerHTML = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([cat,amt],i)=>{
+      const info=Utils.catInfo(cat); const pct=Math.round(amt/total*100);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:13px">${info.e} ${info.n}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--t2)">${pct}%</span>
+        </div>
+        <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${colors[i]}"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderForecast() {
+    const fc = Forecast.thisMonth();
+    const banner = document.getElementById('fc-banner');
+    if(!DB.get('expenses').length){ banner.style.display='none'; return; }
+    banner.style.display='flex';
+    document.getElementById('fc-title').textContent = `Bu oy bashorat: ${Utils.fmtMoney(fc.forecast)}`;
+    document.getElementById('fc-sub').textContent   = `Kunlik o'rtacha ${Utils.fmtMoney(fc.dailyAvg)} · ${fc.remaining} kun qoldi`;
+    document.getElementById('fc-amt').textContent   = Utils.fmtShort(fc.forecast);
+  }
+
+  function renderBudgetMini() {
+    const status = Budget.status();
+    const el = document.getElementById('budget-overview');
+    const mini = document.getElementById('budget-mini');
+    if(!status.length){ el.style.display='none'; return; }
+    el.style.display='';
+    mini.innerHTML = status.slice(0,4).map(b=>{
+      const info = Utils.catInfo(b.cat);
+      return `<div class="budget-item" style="margin-bottom:8px">
+        <div class="bi-top">
+          <div class="bi-left">
+            <div class="bi-ico ${['ico-red','ico-amber','ico-green','ico-purple'][['danger','warn','ok','ok'].indexOf(b.cls)]||'ico-purple'}">${info.e}</div>
+            <div><div class="bi-name">${info.n}</div><div class="bi-meta">${Utils.fmtMoney(b.spent)} sarflandi</div></div>
+          </div>
+          <div class="bi-right">
+            <div class="bi-spent" style="color:${b.cls==='danger'?'var(--red)':b.cls==='warn'?'var(--amber)':'var(--green)'}">${b.pct}%</div>
+            <div class="bi-limit">/ ${Utils.fmtMoney(b.limit)}</div>
+          </div>
+        </div>
+        <div class="bi-bar"><div class="bi-fill ${b.cls}" style="width:${Math.min(b.pct,100)}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  async function enablePush() {
+    const ok = await PushNotif.request();
+    if(ok){ Toast.show('Push bildirishnomalar yoqildi ✅','ok'); document.getElementById('push-banner').style.display='none'; }
+    else   Toast.show("Ruxsat berilmadi",'warn');
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.getElementById('today-label').textContent =
+      new Date().toLocaleDateString('uz-UZ',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    document.getElementById('topbar-user').style.display='';
+
+    // Push banner
+    if('Notification' in window && Notification.permission==='default'){
+      document.getElementById('push-banner').style.display='flex';
+    }
+  });
+</script>
+</body>
+</html>

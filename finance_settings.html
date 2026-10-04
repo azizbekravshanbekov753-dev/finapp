@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Sozlamalar — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top"><div class="sb-brand"><div class="sb-brand-icon">💰</div><div class="sb-brand-name">Fin<span>App</span></div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item on">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0"><div class="sb-uname">Foydalanuvchi</div><div class="sb-urole">Shaxsiy hisob</div></div>
+      <button class="sb-logout logout-btn">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div><div class="topbar-title">⚙️ Sozlamalar</div><div class="topbar-subtitle">Ilova sozlamalari va afzalliklar</div></div>
+      <div style="margin-left:auto"><button class="theme-btn">☀️</button></div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Profil -->
+      <div class="settings-section">
+        <div class="ss-title">👤 Profil</div>
+        <div class="ss-row">
+          <div class="ss-ico" id="prf-avatar" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7c6aff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff">U</div>
+          <div class="ss-info">
+            <div class="ss-lbl" id="prf-name">Foydalanuvchi</div>
+            <div class="ss-desc" id="prf-role">Shaxsiy hisob · <span id="prf-since"></span></div>
+          </div>
+          <div class="ss-right">
+            <span class="badge bdg-purple">Faol</span>
+          </div>
+        </div>
+        <div class="ss-row">
+          <span class="ss-ico">📊</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Ma'lumotlar</div>
+            <div class="ss-desc" id="data-stats">Yuklanmoqda...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ko'rinish -->
+      <div class="settings-section">
+        <div class="ss-title">🎨 Ko'rinish</div>
+        <div class="ss-row">
+          <span class="ss-ico">🌙</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Dark / Light rejim</div>
+            <div class="ss-desc" id="theme-desc">Dark rejim faol</div>
+          </div>
+          <div class="ss-right">
+            <label class="toggle">
+              <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this)"/>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="ss-row">
+          <span class="ss-ico" id="dev-ico">📱</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Qurilma ko'rinishi</div>
+            <div class="ss-desc" id="dev-desc">Hozir: Kompyuter 🖥️</div>
+          </div>
+          <div class="ss-right">
+            <button class="btn btn-ghost btn-sm" onclick="changeDevice()">O'zgartirish</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Valyuta -->
+      <div class="settings-section">
+        <div class="ss-title">💱 Valyuta</div>
+        <div class="ss-row">
+          <span class="ss-ico">💰</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Asosiy valyuta</div>
+            <div class="ss-desc">Xarajat va qarzlar shu valyutada ko'rsatiladi</div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px">
+          <div class="currency-grid">
+            <button class="cur-opt" data-cur="UZS" onclick="selectCurrency(this)"><span class="cur-flag">🇺🇿</span><span class="cur-code">UZS</span><span class="cur-name">So'm</span></button>
+            <button class="cur-opt" data-cur="USD" onclick="selectCurrency(this)"><span class="cur-flag">🇺🇸</span><span class="cur-code">USD</span><span class="cur-name">Dollar</span></button>
+            <button class="cur-opt" data-cur="EUR" onclick="selectCurrency(this)"><span class="cur-flag">🇪🇺</span><span class="cur-code">EUR</span><span class="cur-name">Yevro</span></button>
+            <button class="cur-opt" data-cur="RUB" onclick="selectCurrency(this)"><span class="cur-flag">🇷🇺</span><span class="cur-code">RUB</span><span class="cur-name">Rubl</span></button>
+            <button class="cur-opt" data-cur="KZT" onclick="selectCurrency(this)"><span class="cur-flag">🇰🇿</span><span class="cur-code">KZT</span><span class="cur-name">Tenge</span></button>
+          </div>
+          <div id="rate-info" style="font-size:11px;color:var(--t3);margin-top:10px;text-align:center"></div>
+        </div>
+      </div>
+
+      <!-- PIN -->
+      <div class="settings-section">
+        <div class="ss-title">🔒 Xavfsizlik</div>
+        <div class="ss-row">
+          <span class="ss-ico">🔒</span>
+          <div class="ss-info">
+            <div class="ss-lbl">PIN himoya</div>
+            <div class="ss-desc" id="pin-desc">Ilovani ochishda PIN talab qilinadi</div>
+          </div>
+          <div class="ss-right">
+            <label class="toggle">
+              <input type="checkbox" id="pin-toggle" onchange="togglePIN(this)"/>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div id="pin-section" style="padding:0 20px 16px;display:none">
+          <div style="display:flex;gap:8px">
+            <input type="password" id="pin-input" class="finp" placeholder="4 xonali PIN" maxlength="4" style="flex:1;letter-spacing:6px;font-size:18px;text-align:center"/>
+            <button class="btn btn-primary btn-sm" onclick="savePIN()">Saqlash</button>
+            <button class="btn btn-danger btn-sm" onclick="clearPIN()">O'chirish</button>
+          </div>
+        </div>
+        <div class="ss-row">
+          <span class="ss-ico">🔔</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Push bildirishnomalar</div>
+            <div class="ss-desc" id="push-desc">Qarz muddatlari uchun brauzer xabarlari</div>
+          </div>
+          <div class="ss-right">
+            <button class="btn btn-ghost btn-sm" onclick="reqPush()" id="push-btn">Yoqish</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eksport -->
+      <div class="settings-section">
+        <div class="ss-title">📤 Ma'lumotlarni eksport qilish</div>
+        <div style="padding:16px 20px">
+          <div class="export-grid">
+            <div class="exp-card" onclick="exportCSV('expenses')">
+              <div class="exp-card-ico">📊</div>
+              <div class="exp-card-title">Xarajatlar CSV</div>
+              <div class="exp-card-sub">Excel uchun</div>
+            </div>
+            <div class="exp-card" onclick="exportCSV('debts')">
+              <div class="exp-card-ico">🤝</div>
+              <div class="exp-card-title">Qarzlar CSV</div>
+              <div class="exp-card-sub">Excel uchun</div>
+            </div>
+            <div class="exp-card" onclick="exportJSON()">
+              <div class="exp-card-ico">💾</div>
+              <div class="exp-card-title">To'liq backup</div>
+              <div class="exp-card-sub">JSON format</div>
+            </div>
+            <div class="exp-card" onclick="showReport()">
+              <div class="exp-card-ico">📋</div>
+              <div class="exp-card-title">Bu oy hisobot</div>
+              <div class="exp-card-sub">Qisqa xulosа</div>
+            </div>
+          </div>
+
+          <!-- Oy tanlash -->
+          <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+            <label style="font-size:12px;color:var(--t2);font-weight:600">Oy:</label>
+            <input type="month" id="export-month" class="finp" style="width:160px"/>
+            <span style="font-size:11px;color:var(--t3)">(bo'sh = hammasi)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hisobot modali natijasi -->
+      <div class="overlay" id="report-modal">
+        <div class="modal">
+          <div class="modal-title">📋 Oylik hisobot</div>
+          <div id="report-body" style="font-size:14px;line-height:1.8;color:var(--t1)"></div>
+          <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="document.getElementById('report-modal').classList.remove('show')">Yopish</button>
+            <button class="btn btn-primary" onclick="exportCSV('expenses')">📊 CSV yuklab olish</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gamifikatsiya & Yutuqlar (Achievements) -->
+      <div class="settings-section">
+        <div class="ss-title">🏆 Yutuqlar va Medallar (Gamifikatsiya)</div>
+        <div style="padding: 16px 20px;">
+          <div style="font-size: 13px; color: var(--t2); margin-bottom: 12px">
+            Moliyaviy intizomingiz uchun berilgan maxsus yutuqlar va nishonlar:
+          </div>
+          <div class="badges-grid" id="achievements-list">
+            <!-- Dinamik chiqadi -->
+          </div>
+        </div>
+      </div>
+
+      <!-- API Server -->
+      <div class="settings-section">
+        <div class="ss-title">🔗 API Server (Bot bilan sinxron)</div>
+        <div class="ss-row">
+          <span class="ss-ico">🌐</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Railway API URL</div>
+            <div class="ss-desc" id="api-url-desc">Bot va sayt bir xil ma'lumot ishlatishi uchun</div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px">
+          <div style="display:flex;gap:8px">
+            <input type="text" id="api-url-input" class="finp" 
+              placeholder="https://finapp-production-52be.up.railway.app"
+              style="flex:1"/>
+            <button class="btn btn-primary btn-sm" onclick="saveApiUrl()">Saqlash</button>
+          </div>
+          <div style="font-size:11px;color:var(--t3);margin-top:6px" id="api-status">
+            Yuklanmoqda...
+          </div>
+        </div>
+      </div>
+      <div class="settings-section" style="border-color:rgba(239,68,68,.2)">
+        <div class="ss-title" style="color:var(--red)">⚠️ Xavfli zona</div>
+        <div class="ss-row">
+          <span class="ss-ico">🗑</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Barcha ma'lumotlarni o'chirish</div>
+            <div class="ss-desc">Xarajatlar, qarzlar, bildirishnomalar — barchasi o'chiriladi</div>
+          </div>
+          <div class="ss-right">
+            <button class="btn btn-danger btn-sm" onclick="clearAllData()">O'chirish</button>
+          </div>
+        </div>
+        <div class="ss-row">
+          <span class="ss-ico">🚪</span>
+          <div class="ss-info">
+            <div class="ss-lbl">Hisobdan chiqish</div>
+            <div class="ss-desc">Sessiya yopiladi, ma'lumotlar saqlanib qoladi</div>
+          </div>
+          <div class="ss-right">
+            <button class="btn btn-ghost btn-sm logout-btn">Chiqish</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  function pageRefresh(){
+    const u = Auth.current();
+    if(!u) return;
+
+    // Profil
+    document.getElementById('prf-avatar').textContent = u.displayName[0].toUpperCase();
+    document.getElementById('prf-name').textContent = u.displayName;
+    const expCount  = DB.get('expenses').length;
+    const debtCount = DB.get('debts').length;
+    document.getElementById('data-stats').textContent = `${expCount} ta xarajat · ${debtCount} ta qarz`;
+
+    // Tema
+    const isDark = Theme.get()==='dark';
+    document.getElementById('theme-toggle').checked = !isDark;
+    document.getElementById('theme-desc').textContent = isDark ? 'Dark rejim faol' : 'Light rejim faol';
+
+    // Qurilma
+    const devName = DeviceLayout.name();
+    const devIcos = { mobile: '📱', tablet: '📟', desktop: '🖥️' };
+    document.getElementById('dev-ico').textContent = devIcos[DeviceLayout.get()] || '🖥️';
+    document.getElementById('dev-desc').textContent = 'Hozir: ' + devName;
+
+    // Valyuta
+    const cur = Currency.current();
+    document.querySelectorAll('.cur-opt').forEach(b=>{
+      b.classList.toggle('on', b.dataset.cur===cur);
+    });
+    showRateInfo(cur);
+
+    // PIN
+    const hasPin = PIN.has();
+    document.getElementById('pin-toggle').checked = hasPin;
+    document.getElementById('pin-desc').textContent = hasPin ? 'PIN himoya yoqilgan 🔒' : "PIN himoya o'chirilgan";
+    document.getElementById('pin-section').style.display = hasPin ? 'block' : 'none';
+
+    // Push
+    const pushOk = PushNotif.isGranted();
+    document.getElementById('push-desc').textContent = pushOk ? 'Push bildirishnomalar yoqilgan ✅' : "Push bildirishnomalar o'chirilgan";
+    document.getElementById('push-btn').textContent  = pushOk ? '✅ Yoqilgan' : 'Yoqish';
+    document.getElementById('push-btn').disabled     = pushOk;
+
+    // Export oy
+    document.getElementById('export-month').value = Utils.today().slice(0,7);
+
+    // API URL
+    const apiUrl = TelegramSync.getApiUrl() || '';
+    const apiInp = document.getElementById('api-url-input');
+    if (apiInp) apiInp.value = apiUrl;
+    checkApiStatus();
+
+    // Achievements
+    renderAchievements();
+  }
+
+  function renderAchievements() {
+    const box = document.getElementById('achievements-list');
+    if (!box) return;
+    const unlocked = Achievements.getUnlocked();
+    box.innerHTML = Achievements.list.map(a => {
+      const done = unlocked.includes(a.id);
+      return `<div class="achievement-badge ${done ? 'unlocked' : 'locked'}">
+        <div style="font-size:26px;margin-bottom:6px;${!done?'filter:grayscale(1);opacity:.35':''}">${a.icon}</div>
+        <div style="font-size:12px;font-weight:700;color:${done?'var(--t1)':'var(--t3)'}">${a.title}</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px;text-align:center">${a.desc}</div>
+        ${done ? '<div style="font-size:10px;color:var(--green);margin-top:4px;font-weight:700">✅ Olindi</div>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function showRateInfo(cur){
+    const el = document.getElementById('rate-info');
+    if(cur==='UZS'){ el.textContent=''; return; }
+    const rates = Currency._cached();
+    const rate  = rates[cur] || Currency.defaultRates[cur];
+    if(rate) el.textContent = `1 ${cur} ≈ ${Math.round(rate).toLocaleString('uz-UZ')} so'm`;
+  }
+
+  function saveApiUrl() {
+    const url = document.getElementById('api-url-input').value.trim();
+    if (!url) { Toast.show('URL kiriting!', 'warn'); return; }
+    TelegramSync.setApiUrl(url);
+    checkApiStatus();
+    Toast.show('API URL saqlandi ✅', 'ok');
+  }
+
+  async function checkApiStatus() {
+    const url = TelegramSync.getApiUrl();
+    const el  = document.getElementById('api-status');
+    const inp = document.getElementById('api-url-input');
+    if (!url) {
+      el.textContent = '❌ API URL kiritilmagan';
+      el.style.color = 'var(--red)';
+      return;
+    }
+    if (inp) inp.value = url;
+    el.textContent = 'Tekshirilmoqda...';
+    el.style.color = 'var(--t3)';
+    try {
+      const r = await fetch(url + '/api/health', { 
+        headers: { 'X-API-Key': 'finapp2024secret' },
+        signal: AbortSignal.timeout(5000) 
+      });
+      const d = await r.json();
+      if (d.ok) {
+        el.textContent = `✅ Server ishlayapti — ${d.users} ta foydalanuvchi`;
+        el.style.color = 'var(--green)';
+      } else {
+        el.textContent = '❌ Server javob bermadi';
+        el.style.color = 'var(--red)';
+      }
+    } catch {
+      el.textContent = '❌ Server bilan bog\'lanib bo\'lmadi';
+      el.style.color = 'var(--red)';
+    }
+  }
+    Theme.set(cb.checked ? 'light' : 'dark');
+    document.getElementById('theme-desc').textContent = cb.checked ? 'Light rejim faol' : 'Dark rejim faol';
+    Toast.show(cb.checked?'☀️ Light rejim':'🌙 Dark rejim','info');
+  }
+
+  function changeDevice(){
+    // Qurilma tanlash sahifasiga o'tish (qayta tanlash uchun kalitni o'chiramiz)
+    const u = Auth.current();
+    if (u) localStorage.removeItem('fin_device_' + u.id);
+    window.location.href = 'finance_device.html';
+  }
+
+  function selectCurrency(btn){
+    const code = btn.dataset.cur;
+    Currency.set(code);
+    document.querySelectorAll('.cur-opt').forEach(b=>b.classList.toggle('on',b.dataset.cur===code));
+    showRateInfo(code);
+    Toast.show(`Valyuta: ${code} ✅`,'ok');
+  }
+
+  function togglePIN(cb){
+    if(cb.checked){
+      document.getElementById('pin-section').style.display='block';
+      document.getElementById('pin-input').focus();
+    } else {
+      PIN.clear();
+      document.getElementById('pin-section').style.display='none';
+      document.getElementById('pin-desc').textContent="PIN himoya o'chirilgan";
+      Toast.show("PIN o'chirildi",'info');
+    }
+  }
+
+  function savePIN(){
+    const val = document.getElementById('pin-input').value.trim();
+    if(val.length !== 4 || !/^\d{4}$/.test(val)){Toast.show('4 xonali raqam kiriting!','warn');return;}
+    PIN.set(val);
+    document.getElementById('pin-input').value='';
+    document.getElementById('pin-desc').textContent='PIN himoya yoqilgan 🔒';
+    Toast.show('PIN saqlandi 🔒','ok');
+  }
+
+  function clearPIN(){
+    if(!confirm("PINni o'chirishni istaysizmi?"))return;
+    PIN.clear();
+    document.getElementById('pin-toggle').checked=false;
+    document.getElementById('pin-section').style.display='none';
+    document.getElementById('pin-desc').textContent="PIN himoya o'chirilgan";
+    Toast.show("PIN o'chirildi",'info');
+  }
+
+  async function reqPush(){
+    const ok = await PushNotif.request();
+    if(ok){
+      Toast.show('Push bildirishnomalar yoqildi ✅','ok');
+      document.getElementById('push-desc').textContent='Push bildirishnomalar yoqilgan ✅';
+      document.getElementById('push-btn').textContent='✅ Yoqilgan';
+      document.getElementById('push-btn').disabled=true;
+    } else {
+      Toast.show("Ruxsat berilmadi. Brauzer sozlamalaridan yoqing.",'warn');
+    }
+  }
+
+  function exportCSV(type){
+    const month = document.getElementById('export-month').value || null;
+    Exporter.toCSV(type, month);
+    Toast.show(`${type==='expenses'?'Xarajatlar':'Qarzlar'} CSV yuklab olindi ✅`,'ok');
+  }
+
+  function exportJSON(){
+    Exporter.toJSON();
+    Toast.show('Backup JSON yuklab olindi ✅','ok');
+  }
+
+  function showReport(){
+    const month  = document.getElementById('export-month').value || Utils.today().slice(0,7);
+    const rep    = Exporter.summary(month);
+    const mName  = new Date(month+'-01').toLocaleDateString('uz-UZ',{year:'numeric',month:'long'});
+    const body   = document.getElementById('report-body');
+    body.innerHTML = `
+      <div style="background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">${mName} hisobot</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Jami xarajat:</span><strong style="color:var(--red)">${Utils.fmtMoney(rep.total)}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Yozuvlar soni:</span><strong>${rep.count} ta</strong></div>
+          ${rep.topCategory?`<div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Eng ko'p:</span><strong>${rep.topCategory.name} (${rep.topCategory.pct}%)</strong></div>`:''}
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Qo'shilgan qarz:</span><strong>${rep.debtsAdded} ta</strong></div>
+        </div>
+      </div>
+      ${rep.total===0?'<div style="text-align:center;color:var(--t3);font-size:13px">Bu oyda xarajat yo\'q</div>':''}
+    `;
+    document.getElementById('report-modal').classList.add('show');
+  }
+
+  function clearAllData(){
+    if(!confirm("BARCHA ma'lumotlarni o'chirishni istaysizmi? Bu amalni ortga qaytarib bo'lmaydi!"))return;
+    if(!confirm("Haqiqatan ham? Xarajatlar, qarzlar, maqsadlar, hamyonlar, bildirishnomalar, byudjetlar — hammasi o'chadi!"))return;
+    ['expenses','debts','notifs','budgets','recurring','splits','goals','wallets','transfers'].forEach(k=>DB.set(k,[]));
+    Toast.show('Barcha ma\'lumotlar to\'liq tozalandi ✅','info');
+    setTimeout(()=>window.location.href='finance_dashboard.html',1500);
+  }
+
+  document.getElementById('report-modal').addEventListener('click',e=>{if(e.target===document.getElementById('report-modal'))document.getElementById('report-modal').classList.remove('show');});
+</script>
+</body>
+</html>

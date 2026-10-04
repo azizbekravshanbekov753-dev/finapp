@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Xush kelibsiz — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div class="ob-page">
+  <div class="ob-box">
+
+    <!-- Dots -->
+    <div class="ob-steps">
+      <div class="ob-step-dot on" id="dot-0"></div>
+      <div class="ob-step-dot"    id="dot-1"></div>
+      <div class="ob-step-dot"    id="dot-2"></div>
+      <div class="ob-step-dot"    id="dot-3"></div>
+    </div>
+
+    <!-- Slide 0 -->
+    <div class="ob-slide on" id="slide-0">
+      <div class="ob-icon">💰</div>
+      <div class="ob-title">FinApp ga<br>xush kelibsiz!</div>
+      <div class="ob-desc">Shaxsiy moliyangizni boshqarish endi juda oson. Xarajat va qarzlaringizni bir joyda saqlang.</div>
+      <button class="ob-btn" onclick="nextSlide()">Boshlash →</button>
+    </div>
+
+    <!-- Slide 1 -->
+    <div class="ob-slide" id="slide-1">
+      <div class="ob-icon">✏️</div>
+      <div class="ob-title">Matn yoki<br>🎙️ Ovoz bilan</div>
+      <div class="ob-desc">
+        Xarajatingizni yozing yoki gapiring:<br>
+        <code style="background:rgba(124,106,255,.12);padding:6px 12px;border-radius:8px;font-size:13px;display:inline-block;margin-top:10px;color:var(--purple)">"Non va cola 13000 so'm"</code><br>
+        <code style="background:rgba(34,197,94,.1);padding:6px 12px;border-radius:8px;font-size:13px;display:inline-block;margin-top:6px;color:var(--green)">"Karimga 50000 qarz berdim 5 kunda"</code><br>
+        <span style="font-size:13px;color:var(--t3);display:block;margin-top:10px">Tizim avtomatik tahlil qiladi va saqlaydi</span>
+      </div>
+      <button class="ob-btn" onclick="nextSlide()">Keyingisi →</button>
+      <button class="ob-skip" onclick="nextSlide()">O'tkazib yuborish</button>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="ob-slide" id="slide-2">
+      <div class="ob-icon">🤝</div>
+      <div class="ob-title">Qarzlarni<br>nazorat qiling</div>
+      <div class="ob-desc">
+        Kim sizga qarz, kim sizdan qarz — hammasi aniq ko'rinadi.
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+          <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px 14px;text-align:left">
+            <span style="font-weight:700;color:var(--amber)">🤝 Men berdim</span> — u menga qaytaradi
+          </div>
+          <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 14px;text-align:left">
+            <span style="font-weight:700;color:var(--green)">💰 Men oldim</span> — men qaytaraman
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--t3);margin-top:10px">Muddat kelganda avtomatik eslatma keladi</div>
+      </div>
+      <button class="ob-btn" onclick="nextSlide()">Keyingisi →</button>
+      <button class="ob-skip" onclick="nextSlide()">O'tkazib yuborish</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="ob-slide" id="slide-3">
+      <div class="ob-icon">🎯</div>
+      <div class="ob-title">Tayyor!</div>
+      <div class="ob-desc">
+        Sizda quyidagi imkoniyatlar bor:
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;text-align:left">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px">
+            <div style="font-size:18px;margin-bottom:4px">📊</div>
+            <strong style="display:block;margin-bottom:2px">Analitika</strong>
+            <span style="color:var(--t3)">Grafiklar va statistika</span>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px">
+            <div style="font-size:18px;margin-bottom:4px">🎯</div>
+            <strong style="display:block;margin-bottom:2px">Byudjet</strong>
+            <span style="color:var(--t3)">Oylik limitlar</span>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px">
+            <div style="font-size:18px;margin-bottom:4px">🔄</div>
+            <strong style="display:block;margin-bottom:2px">Takrorlanuvchi</strong>
+            <span style="color:var(--t3)">Avtomatik xarajat</span>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px">
+            <div style="font-size:18px;margin-bottom:4px">👥</div>
+            <strong style="display:block;margin-bottom:2px">Bo'lish</strong>
+            <span style="color:var(--t3)">Guruh xarajat</span>
+          </div>
+        </div>
+      </div>
+      <button class="ob-btn" onclick="finish()">🚀 Boshlash!</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  let curSlide = 0;
+  const total  = 4;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    Theme.init();
+    // Login bo'lmagan bo'lsa auth ga
+    if (!Auth.current()) { window.location.href = 'finance_auth.html'; return; }
+    // Onboarding allaqachon o'tilgan bo'lsa — dashboard
+    const key = 'fin_ob_' + Auth.current().id;
+    if (localStorage.getItem(key)) { window.location.href = 'finance_dashboard.html'; return; }
+    // Tema toggle
+    document.querySelectorAll('.theme-btn').forEach(btn => btn.addEventListener('click', () => Theme.toggle()));
+  });
+
+  function nextSlide() {
+    if (curSlide >= total - 1) { finish(); return; }
+    document.getElementById('slide-' + curSlide).classList.remove('on');
+    document.getElementById('dot-'   + curSlide).classList.remove('on');
+    curSlide++;
+    document.getElementById('slide-' + curSlide).classList.add('on');
+    document.getElementById('dot-'   + curSlide).classList.add('on');
+  }
+
+  function finish() {
+    const u = Auth.current();
+    if (u) localStorage.setItem('fin_ob_' + u.id, '1');
+    window.location.href = 'finance_dashboard.html';
+  }
+
+  // Keyboard navigatsiya
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'Enter') nextSlide();
+  });
+</script>
+</body>
+</html>

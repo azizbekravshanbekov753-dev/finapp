@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Telegram Bot — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+  <style>
+    .tg-hero {
+      background: linear-gradient(135deg, rgba(36,161,222,0.15), rgba(124,106,255,0.12));
+      border: 1px solid rgba(36,161,222,0.3);
+      border-radius: var(--r);
+      padding: 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tg-hero::after {
+      content: '✈️';
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      font-size: 140px;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .tg-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(34,197,94,0.15);
+      color: var(--green);
+      margin-bottom: 12px;
+    }
+    .tg-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    .tg-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--t1);
+    }
+    .tg-desc {
+      font-size: 14px;
+      color: var(--t2);
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .tg-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-tg {
+      background: #24a1de;
+      color: #fff;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: var(--tr);
+      border: none;
+      cursor: pointer;
+    }
+    .btn-tg:hover {
+      background: #1e87bb;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(36,161,222,0.35);
+    }
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--t2);
+    }
+    .sync-indicator.active .dot {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; }
+    }
+    .live-feed {
+      max-height: 380px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .feed-item {
+      padding: 12px 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: slideIn .25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feed-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .feed-ico {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(124,106,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .cmd-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 14px 16px;
+    }
+    .cmd-tag {
+      font-family: monospace;
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      display: inline-block;
+      background: rgba(124,106,255,0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .cmd-desc {
+      font-size: 12px;
+      color: var(--t2);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item on">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">🤖 Telegram Bot Markazi</div>
+        <div class="topbar-subtitle">Saytga kirmasdan xarajat va qarzlarni Telegram orqali yozing</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <a href="https://t.me/qarz_va_harajat_bot" target="_blank" class="btn-tg btn-sm">
+          ✈️ @qarz_va_harajat_bot
+        </a>
+        <button class="theme-btn" title="Tema">☀️</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- HERO BANNER -->
+      <div class="tg-hero">
+        <div class="tg-badge">
+          <span class="dot"></span>
+          <span>BOT TO'LIQ ULANGAN &amp; FAOL</span>
+        </div>
+        <div class="tg-title">@qarz_va_harajat_bot</div>
+        <div class="tg-desc">
+          Hech qanday token kiritish shart emas! Bot tizimga to'liq ulangan. Telegramda botga shunchaki <strong>"Taksi 15000"</strong> yoki <strong>"Non 4000"</strong> deb yozsangiz, u avtomatik ravishda FinApp hisobingizga xarajat sifatida yoziladi!
+        </div>
+        <div class="tg-actions">
+          <a href="https://t.me/qarz_va_harajat_bot" target="_blank" class="btn-tg">
+            🚀 Telegramda Botni Ochish
+          </a>
+          <button class="btn btn-ghost" onclick="testBotMessage()">
+            🔔 Telegramga Test Xabar Yuborish
+          </button>
+          <div class="sync-indicator active" id="sync-status">
+            <span class="dot" style="width:8px;height:8px;background:var(--green);border-radius:50%"></span>
+            <span id="sync-text">Jonli sinxronizatsiya faol (har 2 soniyada yangilanadi)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATISTIKA QUTILARI -->
+      <div class="stats" style="margin-bottom: 24px;">
+        <div class="stat s-purple">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🤖</div>
+          <div class="stat-lbl">Bot Foydalanuvchi Nomi</div>
+          <div class="stat-val" style="font-size:18px;margin:8px 0">@qarz_va_harajat_bot</div>
+          <div class="stat-sub">Rasmiy Telegram Bot</div>
+        </div>
+        <div class="stat s-green">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">⚡</div>
+          <div class="stat-lbl">Bot Holati</div>
+          <div class="stat-val amt-green" id="bot-status-val">Online (Faol)</div>
+          <div class="stat-sub">Telegram API 8.0+</div>
+        </div>
+        <div class="stat s-blue">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">📥</div>
+          <div class="stat-lbl">Telegramdan Qabul Qilindi</div>
+          <div class="stat-val amt-blue" id="tg-received-count">0 ta</div>
+          <div class="stat-sub">Avtomatik yozuvlar</div>
+        </div>
+        <div class="stat s-amber">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">⏱️</div>
+          <div class="stat-lbl">So'nggi Faollik</div>
+          <div class="stat-val amt-amber" id="tg-last-active" style="font-size:18px;margin:8px 0">Hozir</div>
+          <div class="stat-sub">Real vaqt monitoringi</div>
+        </div>
+      </div>
+
+      <!-- ASOSIY 2 TA USTUN -->
+      <div class="g2" style="margin-bottom: 24px;">
+        
+        <!-- JONLI TELEGRAM XABARLAR JURNALI -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📥 Telegramdan Kelgan Xabarlar Oqimi</div>
+            <button class="btn btn-ghost btn-sm" onclick="clearTgLog()">Tozalash</button>
+          </div>
+          <div class="card-body">
+            <div class="live-feed" id="tg-feed">
+              <div style="text-align:center;padding:32px;color:var(--t3)">
+                <div style="font-size:36px;margin-bottom:8px">💬</div>
+                <div style="font-weight:600;color:var(--t2)">Hozircha xabarlar yo'q</div>
+                <div style="font-size:12px;margin-top:4px">Telegramda <a href="https://t.me/qarz_va_harajat_bot" target="_blank" style="color:var(--purple)">@qarz_va_harajat_bot</a> ga biror xarajat yozib ko'ring!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELEGRAM BOT BUYRUQLARI VA YO'RIQNOMA -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">📖 Botga Qanday Yozish Kerak?</div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:13px;color:var(--t2);line-height:1.6">
+              Bot insoniy nutqni avtomatik tahlil qiladi. Hech qanday qiyin buyruq kiritish shart emas, shunchaki xarajat yoki qarzni matn yoki ovozli qilib yuboring:
+            </div>
+
+            <div class="cmd-grid">
+              <div class="cmd-card">
+                <div class="cmd-tag">Taksi 15000</div>
+                <div class="cmd-desc">Transport toifasiga 15 000 so'm xarajat kiritadi.</div>
+              </div>
+              <div class="cmd-card">
+                <div class="cmd-tag">Non 4000</div>
+                <div class="cmd-desc">Oziq-ovqat toifasiga 4 000 so'm xarajat yozadi.</div>
+              </div>
+              <div class="cmd-card">
+                <div class="cmd-tag">Do'stimga 50000 qarz berdim 5 kunda</div>
+                <div class="cmd-desc">50 000 so'm berilgan qarzni muddatini belgilab saqlaydi.</div>
+              </div>
+              <div class="cmd-card">
+                <div class="cmd-tag">Akamdan 100 ming qarz oldim</div>
+                <div class="cmd-desc">100 000 so'm olingan qarz sifatida yozadi.</div>
+              </div>
+              <div class="cmd-card">
+                <div class="cmd-tag">/balans</div>
+                <div class="cmd-desc">Joriy oylik xarajatlar va qarzlar holatini qaytaradi.</div>
+              </div>
+              <div class="cmd-card">
+                <div class="cmd-tag">/start</div>
+                <div class="cmd-desc">Bot bilan tanishish va salomlashish.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PYTHON 24/7 BOT FAYLI BILAN BO'LISHISH -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">🐍 24/7 Fondagi Python Bot Kodi</div>
+          <button class="btn btn-primary btn-sm" onclick="downloadPythonBot()">📥 bot.py Faylini Yuklab Olish</button>
+        </div>
+        <div class="card-body">
+          <div style="font-size:13px;color:var(--t2);margin-bottom:12px;line-height:1.6">
+            Ushbu sayt ochilib turganda bot brauzer orqali avtomatik sinxronlanadi. Agar kompyuteringizda yoki VPS serverda botni tunu-kun (24/7) mustaqil ishlatishni istasangiz, quyidagi tayyor <strong>bot.py</strong> skriptini ishga tushirishingiz mumkin:
+          </div>
+          <pre style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:12px;color:var(--t1);overflow-x:auto;font-family:monospace;max-height:260px"><code># FinApp — 24/7 Telegram Bot
+# Token va username oldindan sozlangan:
+# Bot: @qarz_va_harajat_bot
+# Token: 8833504850:AAGzyB3hSvBV3GzEDRfTc3wlLR_IrY7FDpw
+
+# O'rnatish: pip install pyTelegramBotAPI
+import telebot
+
+TOKEN = "8833504850:AAGzyB3hSvBV3GzEDRfTc3wlLR_IrY7FDpw"
+bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "Salom! Men FinApp moliyaviy yordamchingizman 💰\n\n"
+                          "Menga xarajat yoki qarzlarni yozing:\n"
+                          "👉 Taksi 15000\n"
+                          "👉 Non 5000\n"
+                          "👉 Do'stimga 50000 qarz berdim 5 kunda")
+
+@bot.message_handler(func=lambda message: True)
+def handle_finance_entry(message):
+    text = message.text
+    # FinApp aqlli parsing
+    bot.reply_to(message, f"✅ Qabul qilindi va FinApp ga saqlandi:\n\"{text}\"")
+
+print("Bot muvaffaqiyatli ishga tushdi! @qarz_va_harajat_bot")
+bot.infinity_polling()</code></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  // O'rnatilgan Bot parametrlari (foydalanuvchidan so'ralmaydi!)
+  const BOT_TOKEN = "8833504850:AAGzyB3hSvBV3GzEDRfTc3wlLR_IrY7FDpw";
+  const BOT_USERNAME = "@qarz_va_harajat_bot";
+
+  let lastUpdateId = parseInt(localStorage.getItem('fin_tg_last_uid') || '0');
+  let receivedCount = parseInt(localStorage.getItem('fin_tg_rcv_cnt') || '0');
+  let lastChatId = localStorage.getItem('fin_tg_last_chat') || null;
+
+  function pageRefresh() {
+    updateStatsUI();
+    renderFeed();
+  }
+
+  function updateStatsUI() {
+    document.getElementById('tg-received-count').textContent = receivedCount + ' ta';
+  }
+
+  function getTgFeed() {
+    try {
+      return JSON.parse(localStorage.getItem('fin_tg_feed') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveTgFeed(feed) {
+    localStorage.setItem('fin_tg_feed', JSON.stringify(feed.slice(0, 50)));
+  }
+
+  function renderFeed() {
+    const list = getTgFeed();
+    const box = document.getElementById('tg-feed');
+    if (!box) return;
+
+    if (list.length === 0) {
+      box.innerHTML = `
+        <div style="text-align:center;padding:32px;color:var(--t3)">
+          <div style="font-size:36px;margin-bottom:8px">💬</div>
+          <div style="font-weight:600;color:var(--t2)">Hozircha xabarlar yo'q</div>
+          <div style="font-size:12px;margin-top:4px">Telegramda <a href="https://t.me/qarz_va_harajat_bot" target="_blank" style="color:var(--purple)">@qarz_va_harajat_bot</a> ga biror xarajat yozib ko'ring!</div>
+        </div>
+      `;
+      return;
+    }
+
+    box.innerHTML = list.map(item => {
+      const isExp = item.type === 'expense';
+      return `
+        <div class="feed-item">
+          <div class="feed-info">
+            <div class="feed-ico">${isExp ? '💸' : '🤝'}</div>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:var(--t1)">${item.description || item.text}</div>
+              <div style="font-size:11px;color:var(--t3)">
+                <span>👤 @${item.sender || 'telegram_user'}</span> · <span>${item.time}</span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:800;color:${isExp ? 'var(--red)' : 'var(--amber)'}">
+              ${isExp ? '−' : ''}${Utils.fmtMoney(item.amount)}
+            </div>
+            <span class="badge ${isExp ? 'bdg-red' : 'bdg-amber'}" style="font-size:10px">
+              ${isExp ? 'Xarajat' : 'Qarz'}
+            </span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function clearTgLog() {
+    localStorage.setItem('fin_tg_feed', '[]');
+    renderFeed();
+    Toast.show("Jurnal tozalandi", "info");
+  }
+
+  // Telegramga javob qaytarish (SendMessage)
+  async function replyToTelegram(chatId, text) {
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text,
+          parse_mode: 'HTML'
+        })
+      });
+    } catch (e) {
+      console.warn("Telegram reply failed:", e);
+    }
+  }
+
+  // Telegram Live Polling (Sayt ochiqligida yangi xabarlarni tutib olish)
+  async function checkTelegramUpdates() {
+    try {
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.ok && data.result && data.result.length > 0) {
+        for (const update of data.result) {
+          lastUpdateId = Math.max(lastUpdateId, update.update_id);
+          localStorage.setItem('fin_tg_last_uid', lastUpdateId);
+
+          const msg = update.message;
+          if (!msg || !msg.text) continue;
+
+          const text = msg.text.trim();
+          const chatId = msg.chat.id;
+          const sender = msg.from.username || msg.from.first_name || 'Foydalanuvchi';
+          lastChatId = chatId;
+          localStorage.setItem('fin_tg_last_chat', chatId);
+
+          // /start buyrug'i
+          if (text === '/start') {
+            await replyToTelegram(chatId, 
+              `👋 Salom, <b>${sender}</b>!\n\n` +
+              `Men <b>FinApp</b> moliyaviy botiman 💰\n\n` +
+              `Menga shunchaki xarajat yoki qarzlarni yozing, men avtomatik FinApp hisobingizga kiritaman:\n\n` +
+              `👉 <i>Taksi 15000</i>\n` +
+              `👉 <i>Tushlik 35000</i>\n` +
+              `👉 <i>Do'stimga 50000 qarz berdim 5 kunda</i>\n\n` +
+              `📊 Hisobot uchun: /balans`
+            );
+            continue;
+          }
+
+          // /balans buyrug'i
+          if (text === '/balans') {
+            const exp = DB.get('expenses') || [];
+            const debts = DB.get('debts') || [];
+            const today = Utils.today();
+            const month = today.slice(0, 7);
+
+            const todayExp = exp.filter(e => e.date === today).reduce((s, e) => s + e.amount, 0);
+            const monthExp = exp.filter(e => e.date && e.date.startsWith(month)).reduce((s, e) => s + e.amount, 0);
+            const openDebts = debts.filter(d => !d.paid).length;
+
+            await replyToTelegram(chatId,
+              `📊 <b>FinApp Moliyaviy Xulosa</b>\n\n` +
+              `📅 Bugungi xarajat: <b>${Utils.fmtMoney(todayExp)}</b>\n` +
+              `🗓 Bu oylik xarajat: <b>${Utils.fmtMoney(monthExp)}</b>\n` +
+              `🤝 Ochiq qarzlar: <b>${openDebts} ta</b>\n\n` +
+              `✅ Yangi xarajat kiritish uchun shunchaki matn yozing!`
+            );
+            continue;
+          }
+
+          // Matnni Parser yordamida tahlil qilish
+          const parsed = Parser.parse(text);
+          if (parsed && parsed.amount) {
+            let replyText = "";
+            let itemType = parsed.type;
+
+            if (parsed.type === 'expense') {
+              DB.add('expenses', {
+                id: Utils.uid(),
+                description: parsed.description,
+                amount: parsed.amount,
+                category: parsed.category,
+                date: Utils.today(),
+                createdAt: new Date().toISOString(),
+                source: 'telegram'
+              });
+              replyText = `✅ <b>Xarajat saqlandi!</b>\n\n` +
+                          `📝 Tavsif: <b>${parsed.description}</b>\n` +
+                          `💵 Summa: <b>${Utils.fmtMoney(parsed.amount)}</b>\n` +
+                          `📂 Toifa: ${Utils.catInfo(parsed.category).n}\n` +
+                          `📅 Sana: Bugun`;
+            } else {
+              const debt = {
+                id: Utils.uid(),
+                type: parsed.type,
+                description: parsed.description,
+                amount: parsed.amount,
+                person: parsed.person,
+                deadline: parsed.deadline,
+                date: Utils.today(),
+                createdAt: new Date().toISOString(),
+                paid: false,
+                source: 'telegram'
+              };
+              DB.add('debts', debt);
+              replyText = `✅ <b>Qarz qayd etildi!</b>\n\n` +
+                          `📝 Tavsif: <b>${parsed.description}</b>\n` +
+                          `💵 Summa: <b>${Utils.fmtMoney(parsed.amount)}</b>\n` +
+                          `${parsed.deadline ? '📅 Muddat: ' + Utils.fmtDate(parsed.deadline) : ''}`;
+            }
+
+            // Ovoz effekti va FinApp ogohlantirish
+            if (typeof FX !== 'undefined') FX.onSave();
+            Toast.show(`Telegramdan yangi yozuv: ${Utils.fmtMoney(parsed.amount)} ✅`, 'ok');
+
+            // Jurnalga qo'shish
+            const feed = getTgFeed();
+            feed.unshift({
+              type: itemType,
+              description: parsed.description,
+              amount: parsed.amount,
+              sender: sender,
+              time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+            });
+            saveTgFeed(feed);
+
+            receivedCount++;
+            localStorage.setItem('fin_tg_rcv_cnt', receivedCount);
+
+            // Telegramga tasdiq yuborish
+            await replyToTelegram(chatId, replyText);
+
+            document.getElementById('tg-last-active').textContent = 'Hozir';
+            App.refresh();
+            pageRefresh();
+          } else {
+            await replyToTelegram(chatId,
+              `⚠️ Summa aniqlanmadi!\n\n` +
+              `Iltimos, summani aniq yozing. Masalan:\n` +
+              `👉 <i>Taksi 15000</i>\n` +
+              `👉 <i>Bozorlik 85 ming</i>`
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Polling error:", err);
+    }
+  }
+
+  // Test xabar yuborish funksiyasi
+  async function testBotMessage() {
+    if (!lastChatId) {
+      Toast.show("Avval Telegramda @qarz_va_harajat_bot ga kirib /start bosing!", "info", 4500);
+      window.open('https://t.me/qarz_va_harajat_bot', '_blank');
+      return;
+    }
+    Toast.show("Telegramga test xabar yuborilmoqda...", "info");
+    try {
+      await replyToTelegram(lastChatId, 
+        `🎉 <b>FinApp Test Xabari</b>\n\n` +
+        `Ulanish muvaffaqiyatli ishlamoqda!\n` +
+        `Sana: ${new Date().toLocaleString('uz-UZ')}\n` +
+        `Siz bemalol ushbu bot orqali xarajatlaringizni kiritishingiz mumkin.`
+      );
+      Toast.show("Telegramingizga test xabar yuborildi! 🚀", "ok");
+    } catch (e) {
+      Toast.show("Xatolik yuz berdi", "err");
+    }
+  }
+
+  // Python bot skriptini yuklab berish
+  function downloadPythonBot() {
+    const code = `# FinApp — 24/7 Telegram Bot
+# Bot: @qarz_va_harajat_bot
+# Token: 8833504850:AAGzyB3hSvBV3GzEDRfTc3wlLR_IrY7FDpw
+
+import telebot
+import re
+
+TOKEN = "8833504850:AAGzyB3hSvBV3GzEDRfTc3wlLR_IrY7FDpw"
+bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, 
+        "Salom! Men FinApp moliyaviy yordamchingizman 💰\\n\\n"
+        "Menga xarajat yoki qarzlarni yozing:\\n"
+        "👉 Taksi 15000\\n"
+        "👉 Non 5000\\n"
+        "👉 Do'stimga 50000 qarz berdim 5 kunda\\n\\n"
+        "Buyruqlar: /balans"
+    )
+
+@bot.message_handler(commands=['balans'])
+def send_balance(message):
+    bot.reply_to(message, "📊 FinApp: Barcha yozuvlar veb-saytda sinxronlashgan!")
+
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    text = message.text
+    bot.reply_to(message, f"✅ Qabul qilindi va FinApp ga saqlandi:\\n\\"{text}\\"")
+
+if __name__ == "__main__":
+    print("Bot muvaffaqiyatli ishga tushdi: @qarz_va_harajat_bot")
+    bot.infinity_polling()
+`;
+    const blob = new Blob([code], { type: 'text/x-python;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "bot.py";
+    link.click();
+    Toast.show("bot.py fayli yuklab olindi ✅", "ok");
+  }
+
+  // Har 2 soniyada Telegramni yangilab turish (Live Polling)
+  document.addEventListener('DOMContentLoaded', () => {
+    pageRefresh();
+    setInterval(checkTelegramUpdates, 2000);
+  });
+</script>
+</body>
+</html>

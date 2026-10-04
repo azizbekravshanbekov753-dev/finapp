@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Byudjet — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top"><div class="sb-brand"><div class="sb-brand-icon">💰</div><div class="sb-brand-name">Fin<span>App</span></div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item on">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0"><div class="sb-uname">Foydalanuvchi</div><div class="sb-urole">Shaxsiy hisob</div></div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div><div class="topbar-title">🎯 Byudjet rejasi</div><div class="topbar-subtitle" id="month-label"></div></div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="theme-btn">☀️</button>
+        <button class="btn btn-ghost btn-sm" onclick="prevMonth()">‹</button>
+        <span id="month-nav" style="font-size:13px;font-weight:700;min-width:90px;text-align:center"></span>
+        <button class="btn btn-ghost btn-sm" onclick="nextMonth()">›</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Limit qo'shish</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Umumiy holat -->
+      <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat s-purple"><div class="stat-accent"></div><div class="stat-ico">🎯</div><div class="stat-lbl">Jami limit</div><div class="stat-val" id="s-total-limit">0</div></div>
+        <div class="stat s-red">   <div class="stat-accent"></div><div class="stat-ico">💸</div><div class="stat-lbl">Sarflangan</div><div class="stat-val" id="s-total-spent">0</div></div>
+        <div class="stat s-green"> <div class="stat-accent"></div><div class="stat-ico">💚</div><div class="stat-lbl">Qolgan</div><div class="stat-val" id="s-remaining">0</div></div>
+        <div class="stat s-amber"> <div class="stat-accent"></div><div class="stat-ico">⚠️</div><div class="stat-lbl">Limit oshgan</div><div class="stat-val" id="s-exceeded">0</div><div class="stat-sub">ta kategoriya</div></div>
+      </div>
+
+      <!-- Umumiy progress -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-title">📊 Umumiy byudjet holati</div></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--t2)">Sarflangan / Limit</span>
+            <span style="font-size:13px;font-weight:700" id="overall-pct">0%</span>
+          </div>
+          <div style="height:10px;background:var(--bg3);border-radius:5px;overflow:hidden">
+            <div id="overall-bar" style="height:100%;border-radius:5px;transition:width .5s ease;background:var(--green);width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px">
+            <span id="overall-spent-lbl" style="font-size:12px;color:var(--t3)">0 so'm sarflandi</span>
+            <span id="overall-limit-lbl" style="font-size:12px;color:var(--t3)">Limit: 0 so'm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kategoriyalar bo'yicha -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📋 Kategoriyalar bo'yicha</div>
+        </div>
+        <div class="card-body" id="budget-list"></div>
+      </div>
+
+      <!-- Limitga kirmagan xarajatlar -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-head">
+          <div class="card-title">📌 Limitga bog'lanmagan xarajatlar</div>
+          <span id="untracked-lbl" style="font-size:12px;color:var(--t3)"></span>
+        </div>
+        <div class="card-body" id="untracked-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-title">🎯 Kategoriya limiti</div>
+    <div class="fgrp">
+      <label class="flbl">Kategoriya *</label>
+      <select id="m-cat" class="finp">
+        <option value="food">🍔 Oziq-ovqat</option>
+        <option value="transport">🚌 Transport</option>
+        <option value="entertainment">🎮 Ko'ngilochar</option>
+        <option value="health">💊 Sog'liq</option>
+        <option value="shopping">🛍️ Xarid</option>
+        <option value="education">📚 Ta'lim</option>
+        <option value="utilities">💡 Kommunal</option>
+        <option value="other">📌 Boshqa</option>
+      </select>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Oylik limit (so'm) *</label>
+      <input type="number" id="m-limit" class="finp" placeholder="500000" min="1000" step="1000"/>
+    </div>
+    <div style="font-size:12px;color:var(--t3);margin-top:-8px;margin-bottom:14px" id="m-hint"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Bekor</button>
+      <button class="btn btn-primary" onclick="saveLimit()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  let curMonth = Utils.today().slice(0,7);
+
+  function prevMonth() {
+    const d = new Date(curMonth + '-01');
+    d.setMonth(d.getMonth()-1);
+    curMonth = d.toISOString().slice(0,7);
+    pageRefresh();
+  }
+  function nextMonth() {
+    const d = new Date(curMonth + '-01');
+    d.setMonth(d.getMonth()+1);
+    curMonth = d.toISOString().slice(0,7);
+    pageRefresh();
+  }
+
+  function pageRefresh() {
+    const d = new Date(curMonth + '-01');
+    const mName = d.toLocaleDateString('uz-UZ',{year:'numeric',month:'long'});
+    document.getElementById('month-nav').textContent = mName;
+    document.getElementById('month-label').textContent = mName + ' byudjet rejasi';
+
+    const status = Budget.status(curMonth);
+    const allExp = DB.get('expenses').filter(e=>e.date&&e.date.startsWith(curMonth));
+
+    const totalLimit = status.reduce((s,b)=>s+b.limit,0);
+    const totalSpent = status.reduce((s,b)=>s+b.spent,0);
+    const remaining  = Math.max(0, totalLimit - totalSpent);
+    const exceeded   = status.filter(b=>b.pct>=100).length;
+    const overallPct = totalLimit>0 ? Math.min(Math.round(totalSpent/totalLimit*100),100) : 0;
+
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    set('s-total-limit', Utils.fmtShort(totalLimit));
+    set('s-total-spent', Utils.fmtShort(totalSpent));
+    set('s-remaining',   Utils.fmtShort(remaining));
+    set('s-exceeded',    exceeded);
+    set('overall-pct',   overallPct+'%');
+    set('overall-spent-lbl', Utils.fmtMoney(totalSpent)+' sarflandi');
+    set('overall-limit-lbl', 'Limit: '+Utils.fmtMoney(totalLimit));
+
+    const bar = document.getElementById('overall-bar');
+    if(bar){
+      bar.style.width = overallPct+'%';
+      bar.style.background = overallPct>=100?'var(--red)':overallPct>=80?'var(--amber)':'var(--green)';
+    }
+
+    renderBudgetList(status);
+    renderUntracked(allExp, status);
+  }
+
+  function renderBudgetList(status) {
+    const c = document.getElementById('budget-list');
+    if(!status.length){
+      c.innerHTML=`<div class="empty">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-title">Limit belgilanmagan</div>
+        <div class="empty-desc">Yuqoridagi "+ Limit qo'shish" tugmasi orqali kategoriyalarga oylik limit belgilang</div>
+      </div>`;
+      return;
+    }
+    const sorted = [...status].sort((a,b)=>b.pct-a.pct);
+    c.innerHTML = sorted.map(b=>{
+      const info=Utils.catInfo(b.cat);
+      const icoCls = b.cls==='danger'?'ico-red':b.cls==='warn'?'ico-amber':'ico-green';
+      const clrSpent = b.cls==='danger'?'var(--red)':b.cls==='warn'?'var(--amber)':'var(--green)';
+      return `<div class="budget-item">
+        <div class="bi-top">
+          <div class="bi-left">
+            <div class="bi-ico ${icoCls}">${info.e}</div>
+            <div>
+              <div class="bi-name">${info.n}</div>
+              <div class="bi-meta">${Utils.fmtMoney(b.spent)} / ${Utils.fmtMoney(b.limit)}</div>
+            </div>
+          </div>
+          <div class="bi-right" style="display:flex;align-items:center;gap:8px">
+            <div>
+              <div class="bi-spent" style="color:${clrSpent}">${b.pct}%</div>
+              ${b.cls==='danger'?'<div class="bi-limit" style="color:var(--red)">⚠️ Oshdi!</div>':''}
+            </div>
+            <button class="btn-icon" onclick="delLimit('${b.cat}')" title="O'chirish">🗑</button>
+            <button class="btn-icon" onclick="editLimit('${b.cat}','${b.limit}')" title="Tahrirlash">✏️</button>
+          </div>
+        </div>
+        <div class="bi-bar">
+          <div class="bi-fill ${b.cls}" style="width:${Math.min(b.pct,100)}%"></div>
+        </div>
+        <div class="bi-pct ${b.cls}">
+          ${b.cls==='ok'?`${Utils.fmtMoney(b.limit-b.spent)} qoldi`:
+            b.cls==='warn'?`Ehtiyot bo'ling! Faqat ${Utils.fmtMoney(b.limit-b.spent)} qoldi`:
+            `${Utils.fmtMoney(b.spent-b.limit)} ortiqcha sarflandi`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderUntracked(allExp, status) {
+    const c = document.getElementById('untracked-list');
+    const trackedCats = status.map(b=>b.cat);
+    const untracked = allExp.filter(e=>!trackedCats.includes(e.category));
+    const total = untracked.reduce((s,e)=>s+e.amount,0);
+    document.getElementById('untracked-lbl').textContent = untracked.length+' ta · '+Utils.fmtMoney(total);
+    if(!untracked.length){
+      c.innerHTML=`<div style="padding:16px;text-align:center;color:var(--t3);font-size:13px">Hamma xarajat nazorat ostida ✅</div>`;
+      return;
+    }
+    const byCat={};
+    untracked.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+    c.innerHTML = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
+      const info=Utils.catInfo(cat);
+      return `<div class="irow ani">
+        <div class="irow-ico ico-purple">${info.e}</div>
+        <div class="irow-info">
+          <div class="irow-name">${info.n}</div>
+          <div class="irow-meta">Limit belgilanmagan</div>
+        </div>
+        <div class="irow-amt amt-red">−${Utils.fmtMoney(amt)}</div>
+        <button class="btn btn-ghost btn-sm" onclick="quickLimit('${cat}')">+ Limit</button>
+      </div>`;
+    }).join('');
+  }
+
+  function openAddModal(cat='', limit='') {
+    if(cat) document.getElementById('m-cat').value=cat;
+    if(limit) document.getElementById('m-limit').value=limit;
+    const spent=Budget.spent(document.getElementById('m-cat').value,curMonth);
+    document.getElementById('m-hint').textContent=`Bu oy ${Utils.catInfo(document.getElementById('m-cat').value).n}ga ${Utils.fmtMoney(spent)} sarflandi`;
+    document.getElementById('m-cat').addEventListener('change',()=>{
+      const s=Budget.spent(document.getElementById('m-cat').value,curMonth);
+      document.getElementById('m-hint').textContent=`Bu oy ${Utils.catInfo(document.getElementById('m-cat').value).n}ga ${Utils.fmtMoney(s)} sarflandi`;
+    });
+    document.getElementById('add-modal').classList.add('show');
+  }
+  function closeModal(){ document.getElementById('add-modal').classList.remove('show'); }
+
+  function saveLimit(){
+    const cat=document.getElementById('m-cat').value;
+    const limit=parseFloat(document.getElementById('m-limit').value);
+    if(!limit||limit<=0){Toast.show('Limit kiriting!','warn');return;}
+    Budget.set(cat,limit,curMonth);
+    Toast.show(`✅ ${Utils.catInfo(cat).n}: ${Utils.fmtMoney(limit)} limit qo'yildi`,'ok');
+    closeModal();
+    pageRefresh();
+    document.getElementById('m-limit').value='';
+  }
+
+  function delLimit(cat){
+    if(!confirm(`${Utils.catInfo(cat).n} limitini o'chirishni istaysizmi?`)) return;
+    Budget.del(cat,curMonth);
+    Toast.show("O'chirildi",'info');
+    pageRefresh();
+  }
+
+  function editLimit(cat,limit){
+    openAddModal(cat,limit);
+  }
+
+  function quickLimit(cat){
+    openAddModal(cat,'');
+  }
+
+  document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===document.getElementById('add-modal'))closeModal();});
+</script>
+</body>
+</html>

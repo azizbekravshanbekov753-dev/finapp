@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Hamyonlar & Hisoblar — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item on">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">💳 Hamyonlar va Hisoblar</div>
+        <div class="topbar-subtitle">Naqd pul, kartalar va o'zaro pul o'tkazmalari</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="openTransferModal()">🔄 Pul O'tkazish</button>
+        <button class="btn btn-primary btn-sm" onclick="openNewWalletModal()">+ Yangi Hamyon</button>
+        <button class="theme-btn" title="Tema">☀️</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Umumiy balans kartasi -->
+      <div class="stat s-purple" style="margin-bottom: 24px; padding: 24px;">
+        <div class="stat-accent"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="stat-lbl" style="font-size:12px">Barcha Hamyonlar Jamlanmasi</div>
+            <div class="stat-val" id="total-wallet-balance" style="font-size:32px;margin:6px 0">0 so'm</div>
+            <div class="stat-sub" id="wallets-count-info">5 ta hisob faol</div>
+          </div>
+          <button class="btn btn-primary" onclick="openTransferModal()">🔄 Hamyonlararo O'tkazma</button>
+        </div>
+      </div>
+
+      <!-- Hamyonlar grid -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-head">
+          <div class="card-title">Mening Hamyonlarim</div>
+        </div>
+        <div class="card-body">
+          <div class="wallets-grid" id="wallets-list">
+            <!-- Dinamik chiqadi -->
+          </div>
+        </div>
+      </div>
+
+      <!-- O'tkazmalar tarixi -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">O'tkazmalar Tarixi</div>
+        </div>
+        <div class="card-body">
+          <div id="transfers-list">
+            <!-- Dinamik chiqadi -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- YANGI HAMYON MODALI -->
+<div class="modal-overlay" id="wallet-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div class="modal-box" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:400px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:16px;font-weight:700">💳 Yangi Hamyon Qo'shish</h3>
+      <button onclick="closeWalletModal()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <form onsubmit="handleSaveWallet(event)">
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">Hamyon nomi</label>
+        <input class="field-input" id="w-name" type="text" placeholder="Masalan: TBC Bank, Anorbank, Naqd pul..." required/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="field">
+          <label class="field-label">Boshlang'ich Balans (so'm)</label>
+          <input class="field-input" id="w-balance" type="number" min="0" placeholder="0" value="0" required/>
+        </div>
+        <div class="field">
+          <label class="field-label">Belgisi (Emoji)</label>
+          <select class="field-input" id="w-icon">
+            <option value="💳">💳 Karta (Uzcard/Humo)</option>
+            <option value="💵">💵 Naqd pul</option>
+            <option value="🏦">🏦 Bank hisobi / Visa</option>
+            <option value="🔒">🔒 Jamg'arma Seif</option>
+            <option value="🪙">🪙 Kripto / USDT</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Hamyonni Saqlash</button>
+    </form>
+  </div>
+</div>
+
+<!-- HAMYONLARARO O'TKAZMA MODALI -->
+<div class="modal-overlay" id="transfer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div class="modal-box" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:420px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:16px;font-weight:700">🔄 Hamyonlararo Pul O'tkazish</h3>
+      <button onclick="closeTransferModal()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <form onsubmit="handleExecuteTransfer(event)">
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">Qaysi hamyondan (Yechish):</label>
+        <select class="field-input" id="tr-from" required></select>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">Qaysi hamyonga (O'tkazish):</label>
+        <select class="field-input" id="tr-to" required></select>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">O'tkazma summasi (so'm):</label>
+        <input class="field-input" id="tr-amt" type="number" min="1000" placeholder="100000" required/>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label class="field-label">Izoh (ixtiyoriy):</label>
+        <input class="field-input" id="tr-note" type="text" placeholder="Masalan: Bankomatdan naqd yechdim..."/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">O'tkazmani Amalga Oshirish</button>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  function pageRefresh() {
+    renderWallets();
+    renderTransfers();
+  }
+
+  function renderWallets() {
+    const list = Wallets.getAll();
+    const container = document.getElementById('wallets-list');
+    if (!container) return;
+
+    const total = Wallets.getTotalBalance();
+    document.getElementById('total-wallet-balance').textContent = Utils.fmtMoney(total);
+    document.getElementById('wallets-count-info').textContent = `${list.length} ta hisob faol`;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--t3)">
+          <div style="font-size: 44px; margin-bottom: 12px">💳</div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 6px">Hozircha hamyonlar yo'q</div>
+          <div style="font-size: 13px; margin-bottom: 18px">O'zingizning karta yoki naqd pul hamyoningizni qo'shing</div>
+          <button class="btn btn-primary" onclick="openNewWalletModal()">+ Yangi Hamyon</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = list.map(w => {
+      return `
+        <div class="wallet-card">
+          <div class="wallet-top">
+            <div class="wallet-icon" style="background: rgba(124,106,255,0.15)">${w.icon || '💳'}</div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+              <span class="wallet-chip">${w.type || 'hisob'}</span>
+              <button class="btn-icon" onclick="deleteWallet('${w.id}')" title="O'chirish" style="font-size:12px;opacity:0.6">🗑</button>
+            </div>
+          </div>
+          <div class="wallet-balance-label">${w.name}</div>
+          <div class="wallet-balance-val">${Utils.fmtMoney(w.balance || 0)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function deleteWallet(id) {
+    if (!confirm("Ushbu hamyonni o'chirishni istaysizmi?")) return;
+    Wallets.delete(id);
+    Toast.show("Hamyon o'chirildi", "info");
+    renderWallets();
+  }
+
+  function renderTransfers() {
+    const transfers = DB.get('transfers') || [];
+    const container = document.getElementById('transfers-list');
+    if (!container) return;
+
+    if (transfers.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--t3)">Hozircha o'tkazmalar tarixi mavjud emas</div>`;
+      return;
+    }
+
+    container.innerHTML = transfers.slice(0, 10).map(tr => {
+      return `
+        <div class="irow ani">
+          <div class="irow-ico ico-purple">🔄</div>
+          <div class="irow-info">
+            <div class="irow-name">${tr.fromName} → ${tr.toName}</div>
+            <div class="irow-meta"><span>${tr.note || 'Hamyonlararo o\'tkazma'}</span><span>·</span><span>${Utils.fmtDate(tr.date)}</span></div>
+          </div>
+          <div class="irow-amt amt-purple">${Utils.fmtMoney(tr.amount)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openNewWalletModal() {
+    document.getElementById('wallet-modal').style.display = 'flex';
+  }
+  function closeWalletModal() {
+    document.getElementById('wallet-modal').style.display = 'none';
+  }
+
+  function handleSaveWallet(e) {
+    e.preventDefault();
+    const name = document.getElementById('w-name').value;
+    const balance = document.getElementById('w-balance').value;
+    const icon = document.getElementById('w-icon').value;
+
+    Wallets.add({ name, balance, icon });
+    closeWalletModal();
+    Toast.show("Yangi hamyon qo'shildi ✅", "ok");
+    renderWallets();
+  }
+
+  function openTransferModal() {
+    const list = Wallets.getAll();
+    if (list.length < 2) {
+      Toast.show("Pul o'tkazish uchun kamida 2 ta hamyon bo'lishi kerak. Avval yangi hamyon qo'shing.", 'warn', 4000);
+      return;
+    }
+    const fromSel = document.getElementById('tr-from');
+    const toSel = document.getElementById('tr-to');
+
+    fromSel.innerHTML = list.map(w => `<option value="${w.id}">${w.icon} ${w.name} (${Utils.fmtMoney(w.balance)})</option>`).join('');
+    toSel.innerHTML = list.map(w => `<option value="${w.id}">${w.icon} ${w.name}</option>`).join('');
+    if (list.length > 1) toSel.selectedIndex = 1;
+
+    document.getElementById('transfer-modal').style.display = 'flex';
+  }
+  function closeTransferModal() {
+    document.getElementById('transfer-modal').style.display = 'none';
+  }
+
+  function handleExecuteTransfer(e) {
+    e.preventDefault();
+    const fromId = document.getElementById('tr-from').value;
+    const toId = document.getElementById('tr-to').value;
+    const amt = Number(document.getElementById('tr-amt').value);
+    const note = document.getElementById('tr-note').value;
+
+    const res = Wallets.transfer(fromId, toId, amt, note);
+    if (!res.ok) {
+      Toast.show(res.msg, 'err');
+      return;
+    }
+
+    closeTransferModal();
+    Toast.show("O'tkazma muvaffaqiyatli bajarildi 🎉", 'ok');
+    renderWallets();
+    renderTransfers();
+  }
+</script>
+</body>
+</html>

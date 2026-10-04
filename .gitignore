@@ -1,0 +1,20 @@
+# Token va shaxsiy ma'lumotlar — GitHub ga YUKLANMAYDI
+.env
+fin_db.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/

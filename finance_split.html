@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Guruh bo'lish — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top"><div class="sb-brand"><div class="sb-brand-icon">💰</div><div class="sb-brand-name">Fin<span>App</span></div></div></div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item on">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0"><div class="sb-uname">Foydalanuvchi</div><div class="sb-urole">Shaxsiy hisob</div></div>
+      <button class="sb-logout logout-btn">⏻</button>
+    </div>
+  </aside>
+
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div><div class="topbar-title">👥 Guruh xarajat bo'lish</div><div class="topbar-subtitle">Xarajatni do'stlar bilan teng bo'ling</div></div>
+      <div style="margin-left:auto"><button class="theme-btn">☀️</button></div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Yangi bo'lish formasi -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-title">➕ Yangi xarajat bo'lish</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div>
+              <label class="flbl">Xarajat nomi *</label>
+              <input type="text" id="sp-title" class="finp" placeholder="Tushlik, Kino, Sayohat..."/>
+            </div>
+            <div>
+              <label class="flbl">Jami summa (so'm) *</label>
+              <input type="number" id="sp-total" class="finp" placeholder="120000" oninput="updateSplit()"/>
+            </div>
+          </div>
+
+          <label class="flbl" style="margin-bottom:8px;display:block">Ishtirokchilar *</label>
+          <div id="persons-list" style="margin-bottom:10px"></div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input type="text" id="sp-person" class="finp" placeholder="Ism kiriting..." style="flex:1"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addPerson()}"/>
+            <button class="btn btn-ghost btn-sm" onclick="addPerson()">+ Qo'shish</button>
+          </div>
+
+          <!-- Natija -->
+          <div class="split-result" id="split-result" style="display:none">
+            <div class="sr-title">Har bir kishi to'laydi</div>
+            <div class="sr-amt" id="sr-amt">0 so'm</div>
+            <div class="sr-sub" id="sr-sub">—</div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:13px" onclick="createSplit()">
+            💾 Saqlash va havola yaratish
+          </button>
+        </div>
+      </div>
+
+      <!-- Mavjud bo'lishlar -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📋 Saqlangan bo'lishlar</div>
+          <span id="split-count" style="font-size:12px;color:var(--t3)"></span>
+        </div>
+        <div class="card-body" id="splits-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+<script src="app.js"></script>
+<script>
+  let persons = [];
+
+  // Standart shaxslar
+  function initPersons(){
+    persons = [Auth.current()?.displayName || 'Men'];
+    renderPersons();
+  }
+
+  function addPerson(){
+    const inp=document.getElementById('sp-person');
+    const name=inp.value.trim();
+    if(!name){Toast.show('Ism kiriting!','warn');return;}
+    if(persons.includes(name)){Toast.show('Bu ism allaqachon bor','warn');return;}
+    persons.push(name);
+    inp.value='';
+    renderPersons();
+    updateSplit();
+  }
+
+  function removePerson(name){
+    persons=persons.filter(p=>p!==name);
+    renderPersons();
+    updateSplit();
+  }
+
+  function renderPersons(){
+    const c=document.getElementById('persons-list');
+    if(!persons.length){c.innerHTML='<div style="color:var(--t3);font-size:13px;padding:8px 0">Hali ishtirokchi qo\'shilmagan</div>';return;}
+    c.innerHTML=persons.map(p=>`
+      <div class="split-person">
+        <div class="sp-avatar">${p[0].toUpperCase()}</div>
+        <span class="sp-name">${p}</span>
+        ${p===(Auth.current()?.displayName||'Men')?'<span style="font-size:11px;color:var(--t3)">Siz</span>':''}
+        <button class="btn-icon" onclick="removePerson('${p.replace(/'/g,"\\'")}')">✕</button>
+      </div>`).join('');
+  }
+
+  function updateSplit(){
+    const total=parseFloat(document.getElementById('sp-total').value)||0;
+    const n=persons.length;
+    const res=document.getElementById('split-result');
+    if(!total||!n){res.style.display='none';return;}
+    const share=Math.round(total/n);
+    document.getElementById('sr-amt').textContent=Utils.fmtMoney(share);
+    document.getElementById('sr-sub').textContent=`${n} kishi · Jami ${Utils.fmtMoney(total)}`;
+    res.style.display='';
+  }
+
+  function createSplit(){
+    const title=document.getElementById('sp-title').value.trim();
+    const total=parseFloat(document.getElementById('sp-total').value);
+    if(!title){Toast.show('Xarajat nomi kiriting!','warn');return;}
+    if(!total||total<=0){Toast.show('Summani kiriting!','warn');return;}
+    if(persons.length<2){Toast.show("Kamida 2 ta ishtirokchi kerak",'warn');return;}
+
+    const split=Split.create({title,total,persons});
+    Toast.show(`✅ "${title}" saqlandi`,'ok');
+
+    // Reset
+    document.getElementById('sp-title').value='';
+    document.getElementById('sp-total').value='';
+    document.getElementById('split-result').style.display='none';
+    persons=[Auth.current()?.displayName||'Men'];
+    renderPersons();
+
+    pageRefresh();
+  }
+
+  function pageRefresh(){
+    const all=Split.getAll();
+    document.getElementById('split-count').textContent=all.length+' ta';
+    const c=document.getElementById('splits-list');
+    if(!all.length){
+      c.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Hali bo'lish yo'q</div><div class="empty-desc">Yuqoridagi forma orqali xarajatni do'stlar bilan bo'ling</div></div>`;
+      return;
+    }
+    c.innerHTML=all.map(s=>{
+      const paidCount=s.persons.filter(p=>p.paid).length;
+      const allPaid=paidCount===s.persons.length;
+      const link=Split.shareLink(s.id);
+      return `<div class="card ani" style="border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--t1)">${s.title}</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:2px">${Utils.fmtDate(s.date)} · ${s.persons.length} kishi</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:18px;font-weight:800;color:var(--green)">${Utils.fmtMoney(s.total)}</div>
+            <div style="font-size:11px;color:var(--t3)">Har biri: ${Utils.fmtMoney(s.persons[0]?.share||0)}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          ${s.persons.map(p=>`
+            <div class="split-person" style="margin-bottom:5px">
+              <div class="sp-avatar" style="${p.paid?'background:var(--green)':''}">${p.name[0].toUpperCase()}</div>
+              <div><div class="sp-name">${p.name}</div><div class="sp-paid">${p.paid?'✅ To\'ladi':"⏳ Kutilmoqda"}</div></div>
+              <div class="sp-amt" style="${p.paid?'':'color:var(--amber)'}">${Utils.fmtMoney(p.share)}</div>
+              ${!p.paid?`<button class="btn btn-success btn-xs" onclick="payPerson('${s.id}','${p.name.replace(/'/g,"\\'")}')">✓ To'ladi</button>`:''}
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span class="badge ${allPaid?'bdg-green':'bdg-amber'}">${allPaid?'✅ Hammasi to\'ladi':`${paidCount}/${s.persons.length} to'ladi`}</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="copyLink('${s.id}')">🔗 Havola</button>
+            <button class="btn-icon" onclick="delSplit('${s.id}')">🗑</button>
+          </div>
+        </div>
+        <div class="share-box" id="share-${s.id}" style="display:none">
+          <span class="share-link">${link}</span>
+          <button class="copy-btn" onclick="copyText('${link}')">Nusxa</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function payPerson(splitId,name){
+    Split.markPaid(splitId,name);
+    Toast.show(`${name} to'ladi ✅`,'ok');
+    pageRefresh();
+  }
+
+  function copyLink(id){
+    const box=document.getElementById('share-'+id);
+    box.style.display=box.style.display==='none'?'flex':'none';
+  }
+
+  function copyText(text){
+    navigator.clipboard.writeText(text).then(()=>Toast.show('Nusxa olindi ✅','ok')).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      Toast.show('Nusxa olindi','ok');
+    });
+  }
+
+  function delSplit(id){
+    if(!confirm("O'chirishni istaysizmi?"))return;
+    Split.del(id);
+    Toast.show("O'chirildi",'info');
+    pageRefresh();
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{initPersons();});
+</script>
+</body>
+</html>

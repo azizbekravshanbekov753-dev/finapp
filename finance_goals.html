@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Maqsadlar (Kopilka) — FinApp</title>
+  <link rel="stylesheet" href="finance.css"/>
+</head>
+<body>
+<div id="sb-overlay" class="sb-overlay"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">💰</div>
+        <div class="sb-brand-name">Fin<span>App</span></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Asosiy</div>
+      <a href="finance_dashboard.html"     class="sb-item">    <span class="sb-ico">🏠</span>Dashboard</a>
+      <a href="finance_expenses.html"      class="sb-item">     <span class="sb-ico">💸</span>Xarajatlar</a>
+      <a href="finance_debts.html"         class="sb-item">        <span class="sb-ico">🤝</span>Qarzlar</a>
+      <a href="finance_notifications.html" class="sb-item"><span class="sb-ico">🔔</span>Bildirishnomalar<span class="sb-badge">0</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Jamg'arma & Hamyonlar</div>
+      <a href="finance_goals.html"         class="sb-item on">        <span class="sb-ico">🎯</span>Maqsadlar<span class="sb-new">Yangi</span></a>
+      <a href="finance_wallets.html"       class="sb-item">      <span class="sb-ico">💳</span>Hamyonlar<span class="sb-new">Yangi</span></a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Tahlil & Boshqaruv</div>
+      <a href="finance_budget.html"        class="sb-item">       <span class="sb-ico">📊</span>Byudjet</a>
+      <a href="finance_analytics.html"     class="sb-item">    <span class="sb-ico">📈</span>Analitika</a>
+      <a href="finance_recurring.html"     class="sb-item">    <span class="sb-ico">🔄</span>Takrorlanuvchi</a>
+      <a href="finance_split.html"         class="sb-item">        <span class="sb-ico">👥</span>Guruh bo'lish</a>
+      <div class="sb-divider"></div>
+      <a href="finance_telegram.html"      class="sb-item">     <span class="sb-ico">🤖</span>Telegram Bot<span class="sb-new" style="background:#22c55e">Faol</span></a>
+      <a href="finance_settings.html"      class="sb-item">      <span class="sb-ico">⚙️</span>Sozlamalar</a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">U</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname">Foydalanuvchi</div>
+        <div class="sb-urole">Shaxsiy hisob</div>
+      </div>
+      <button class="sb-logout logout-btn" title="Chiqish">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="page">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sb-toggle">☰</button>
+      <div>
+        <div class="topbar-title">🎯 Moliyaviy Maqsadlar (Kopilka)</div>
+        <div class="topbar-subtitle">Orzularingiz uchun jamg'arib boring</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="privacy-btn" onclick="PrivacyMode.toggle()" title="Balanslarni yashirish/ko'rsatish">👁️ Balanslar</button>
+        <button class="btn btn-primary btn-sm" onclick="openNewGoalModal()">+ Yangi Maqsad</button>
+        <button class="theme-btn" title="Tema">☀️</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Umumiy statistika -->
+      <div class="stats" id="goals-stats">
+        <div class="stat s-purple">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🎯</div>
+          <div class="stat-lbl">Jami Maqsadlar</div>
+          <div class="stat-val" id="st-total-goals">0 ta</div>
+          <div class="stat-sub">Faol rejalashtirish</div>
+        </div>
+        <div class="stat s-green">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">💰</div>
+          <div class="stat-lbl">Jamg'arilgan Mablag'</div>
+          <div class="stat-val amt-green privacy-val" id="st-total-saved">0 so'm</div>
+          <div class="stat-sub">Kopilkada mavjud</div>
+        </div>
+        <div class="stat s-amber">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">🏁</div>
+          <div class="stat-lbl">Kerakli Jami Summa</div>
+          <div class="stat-val amt-amber privacy-val" id="st-target-sum">0 so'm</div>
+          <div class="stat-sub">Kutilayotgan marra</div>
+        </div>
+        <div class="stat s-blue">
+          <div class="stat-accent"></div>
+          <div class="stat-ico">📈</div>
+          <div class="stat-lbl">Umumiy Natija</div>
+          <div class="stat-val amt-blue" id="st-avg-progress">0%</div>
+          <div class="stat-sub">Bajarilish darajasi</div>
+        </div>
+      </div>
+
+      <!-- Maqsadlar ro'yxati -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Mening Maqsadlarim</div>
+        </div>
+        <div class="card-body">
+          <div class="goals-grid" id="goals-list">
+            <!-- Dinamik chiqadi -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- YANGI MAQSAD MODALI -->
+<div class="modal-overlay" id="goal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div class="modal-box" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:440px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:17px;font-weight:700">🎯 Yangi Maqsad Yaratish</h3>
+      <button onclick="closeGoalModal()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <form onsubmit="handleSaveGoal(event)">
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">Maqsad nomi</label>
+        <input class="field-input" id="g-title" type="text" placeholder="Masalan: iPhone 16 Pro, Sayohat..." required/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="field">
+          <label class="field-label">Kerakli summa (so'm)</label>
+          <input class="field-input" id="g-target" type="number" min="1000" placeholder="10000000" required/>
+        </div>
+        <div class="field">
+          <label class="field-label">Boshlang'ich mablag'</label>
+          <input class="field-input" id="g-current" type="number" min="0" placeholder="0" value="0"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <div class="field">
+          <label class="field-label">Belgisi (Emoji)</label>
+          <select class="field-input" id="g-icon">
+            <option value="🎯">🎯 Maqsad</option>
+            <option value="💻">💻 Noutbuk / Texnika</option>
+            <option value="📱">📱 Telefon</option>
+            <option value="🚗">🚗 Avtomobil</option>
+            <option value="🏠">🏠 Uy / Ta'mir</option>
+            <option value="✈️">✈️ Sayohat</option>
+            <option value="🎓">🎓 Ta'lim / Kurs</option>
+            <option value="💍">💍 To'y / Marosim</option>
+            <option value="💎">💎 Boshqa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Muddati (ixtiyoriy)</label>
+          <input class="field-input" id="g-deadline" type="date"/>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Saqlash va Boshlash</button>
+    </form>
+  </div>
+</div>
+
+<!-- PUL QO'SHISH / YECHISH MODALI -->
+<div class="modal-overlay" id="fund-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+  <div class="modal-box" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:380px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 id="fund-modal-title" style="font-size:16px;font-weight:700">Mablag' kiritish</h3>
+      <button onclick="closeFundModal()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <form onsubmit="handleSaveFund(event)">
+      <input type="hidden" id="fund-goal-id"/>
+      <input type="hidden" id="fund-type"/>
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">Summa (so'm)</label>
+        <input class="field-input" id="fund-amount" type="number" min="1000" placeholder="100000" required/>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label class="field-label">Izoh (ixtiyoriy)</label>
+        <input class="field-input" id="fund-note" type="text" placeholder="Masalan: Oylikdan, Bonus..."/>
+      </div>
+      <button type="submit" id="fund-submit-btn" class="btn btn-success" style="width:100%">Tasdiqlash</button>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  function pageRefresh() {
+    renderGoals();
+  }
+
+  function renderGoals() {
+    const list = Goals.getAll();
+    const container = document.getElementById('goals-list');
+    if (!container) return;
+
+    // Statistikalar
+    const totalGoals = list.length;
+    const totalSaved = list.reduce((s, g) => s + (Number(g.currentAmount) || 0), 0);
+    const targetSum = list.reduce((s, g) => s + (Number(g.targetAmount) || 0), 0);
+    const avgProg = targetSum > 0 ? Math.min(100, Math.round((totalSaved / targetSum) * 100)) : 0;
+
+    document.getElementById('st-total-goals').textContent = `${totalGoals} ta`;
+    document.getElementById('st-total-saved').textContent = Utils.fmtMoney(totalSaved);
+    document.getElementById('st-target-sum').textContent = Utils.fmtMoney(targetSum);
+    document.getElementById('st-avg-progress').textContent = `${avgProg}%`;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--t3)">
+          <div style="font-size: 44px; margin-bottom: 12px">🎯</div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 6px">Hozircha maqsadlar yo'q</div>
+          <div style="font-size: 13px; margin-bottom: 18px">Orzuingizdagi xarid yoki safar uchun yangi maqsad qo'shing</div>
+          <button class="btn btn-primary" onclick="openNewGoalModal()">+ Yangi Maqsad</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = list.map(g => {
+      const pct = Math.min(100, Math.round(((g.currentAmount || 0) / (g.targetAmount || 1)) * 100));
+      const isDone = pct >= 100;
+      const left = Math.max(0, g.targetAmount - g.currentAmount);
+
+      return `
+        <div class="goal-card ${isDone ? 'completed' : ''}">
+          <div class="goal-card-top">
+            <div class="goal-icon" style="background: ${isDone ? 'rgba(34,197,94,0.15)' : 'rgba(124,106,255,0.15)'}">${g.icon || '🎯'}</div>
+            <div class="goal-info">
+              <div class="goal-title">${g.title}</div>
+              <div class="goal-deadline">
+                ${g.deadline ? '📅 ' + Utils.fmtDate(g.deadline) : '⏳ Muddat cheklanmagan'}
+              </div>
+            </div>
+            <button class="btn-icon" onclick="deleteGoal('${g.id}')" title="O'chirish">🗑</button>
+          </div>
+
+          <div class="goal-amounts">
+            <div class="goal-curr">${Utils.fmtMoney(g.currentAmount)}</div>
+            <div class="goal-target">/ ${Utils.fmtMoney(g.targetAmount)}</div>
+          </div>
+
+          <div class="goal-progress-wrap">
+            <div class="goal-progress-bar" style="width: ${pct}%; background: ${isDone ? 'var(--green)' : 'var(--purple-g)'}"></div>
+          </div>
+
+          <div class="goal-progress-meta">
+            <span>${pct}% yig'ildi ${isDone ? '🎉' : ''}</span>
+            <span>${isDone ? '✅ Marraga erishildi!' : 'Qoldi: ' + Utils.fmtMoney(left)}</span>
+          </div>
+
+          <div class="goal-actions">
+            <button class="btn btn-success btn-sm" onclick="openFundModal('${g.id}', 'deposit')">+ Qo'shish</button>
+            <button class="btn btn-ghost btn-sm" onclick="openFundModal('${g.id}', 'withdraw')">− Yechish</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openNewGoalModal() {
+    document.getElementById('goal-modal').style.display = 'flex';
+  }
+  function closeGoalModal() {
+    document.getElementById('goal-modal').style.display = 'none';
+  }
+
+  function handleSaveGoal(e) {
+    e.preventDefault();
+    const title = document.getElementById('g-title').value;
+    const targetAmount = document.getElementById('g-target').value;
+    const currentAmount = document.getElementById('g-current').value;
+    const icon = document.getElementById('g-icon').value;
+    const deadline = document.getElementById('g-deadline').value;
+
+    Goals.add({ title, targetAmount, currentAmount, icon, deadline });
+    closeGoalModal();
+    Toast.show("Yangi maqsad yaratildi 🎯", "ok");
+    renderGoals();
+  }
+
+  function openFundModal(id, type) {
+    document.getElementById('fund-goal-id').value = id;
+    document.getElementById('fund-type').value = type;
+    document.getElementById('fund-amount').value = '';
+    document.getElementById('fund-note').value = '';
+
+    const isDep = type === 'deposit';
+    document.getElementById('fund-modal-title').textContent = isDep ? "Jamg'armaga pul qo'shish 💰" : "Jamg'armadan pul yechish 💸";
+    const btn = document.getElementById('fund-submit-btn');
+    btn.className = isDep ? 'btn btn-success' : 'btn btn-danger';
+    btn.textContent = isDep ? "+ Qo'shish" : "− Yechib olish";
+
+    document.getElementById('fund-modal').style.display = 'flex';
+  }
+  function closeFundModal() {
+    document.getElementById('fund-modal').style.display = 'none';
+  }
+
+  function handleSaveFund(e) {
+    e.preventDefault();
+    const id = document.getElementById('fund-goal-id').value;
+    const type = document.getElementById('fund-type').value;
+    const amt = Number(document.getElementById('fund-amount').value);
+    const note = document.getElementById('fund-note').value;
+
+    if (type === 'deposit') {
+      const res = Goals.deposit(id, amt, note);
+      if (!res.ok) { Toast.show(res.msg, 'err'); return; }
+      Toast.show(`+${Utils.fmtMoney(amt)} qo'shildi 🎉`, 'ok');
+    } else {
+      const res = Goals.withdraw(id, amt, note);
+      if (!res.ok) { Toast.show(res.msg, 'err'); return; }
+      Toast.show(`-${Utils.fmtMoney(amt)} yechildi`, 'info');
+    }
+
+    closeFundModal();
+    renderGoals();
+  }
+
+  function deleteGoal(id) {
+    if (!confirm("Ushbu maqsadni o'chirishni istaysizmi?")) return;
+    Goals.delete(id);
+    Toast.show("Maqsad o'chirildi", "info");
+    renderGoals();
+  }
+</script>
+</body>
+</html>
