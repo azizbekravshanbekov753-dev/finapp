@@ -538,5 +538,4 @@ if __name__=="__main__":
     bot_thread=threading.Thread(target=run_bot,daemon=True)
     bot_thread.start()
     log.info(f"🌐 Flask server port {PORT} da ishlamoqda...")
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=PORT)
+    app.run(host="0.0.0.0", port=PORT)
