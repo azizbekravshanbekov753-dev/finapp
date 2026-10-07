@@ -322,7 +322,7 @@
               <div class="df-money">
                 <span class="df-money-pfx">so'm</span>
                 <input type="number" id="df-amount" class="df-input"
-                  placeholder="0" min="1" step="100"
+                  placeholder="0" min="1"
                   oninput="updatePreview()"/>
               </div>
             </div>
@@ -488,11 +488,10 @@
     }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     voiceRec = new SR();
-    voiceRec.lang = 'uz-UZ'; voiceRec.interimResults = true;
+    voiceRec.lang = 'ru-RU'; voiceRec.interimResults = false; voiceRec.maxAlternatives = 3;
     voiceRec.onresult = (e) => {
-      let tr = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) tr += e.results[i][0].transcript;
-      if (e.results[e.results.length-1].isFinal) fillFromVoice(tr);
+      const tr = e.results[0][0].transcript;
+      fillFromVoice(tr);
     };
     voiceRec.onerror = () => { voiceOn = false; document.getElementById('voice-btn').classList.remove('on'); };
     voiceRec.onend   = () => {

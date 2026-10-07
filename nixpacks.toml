@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["python311"]
-
-[phases.install]
-cmds = ["pip install python-telegram-bot==20.7"]
-
-[start]
-cmd = "python bot_only.py"

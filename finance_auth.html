@@ -125,8 +125,12 @@
 <script>
   // Agar allaqachon login qilingan bo'lsa dashboard'ga o'tkazish
   (function() {
-    const sess = sessionStorage.getItem('fin_session');
-    if (sess) window.location.href = 'finance_dashboard.html';
+    const sess = sessionStorage.getItem('fin_session') || localStorage.getItem('fin_session');
+    if (sess) {
+      // sessionStorage ga ham yozish
+      if (!sessionStorage.getItem('fin_session')) sessionStorage.setItem('fin_session', sess);
+      window.location.href = 'finance_dashboard.html';
+    }
   })();
 
   let mode = 'login';

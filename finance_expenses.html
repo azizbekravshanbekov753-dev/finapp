@@ -259,7 +259,7 @@
               <div class="ef-money-wrap">
                 <span class="ef-money-prefix">so'm</span>
                 <input type="number" id="ef-amount" class="ef-input"
-                  placeholder="0" min="1" step="100"
+                  placeholder="0" min="1"
                   oninput="onFieldChange()"/>
               </div>
             </div>
@@ -389,11 +389,14 @@
     }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     voiceRec = new SR();
-    voiceRec.lang = 'uz-UZ'; voiceRec.interimResults = true;
+    voiceRec.lang = 'ru-RU'; // uz-UZ yomon ishlaydi, ru-RU yaxshiroq
+    voiceRec.interimResults = false; // faqat yakuniy natija
+    voiceRec.maxAlternatives = 3;
+    voiceRec.continuous = false;
     voiceRec.onresult = (e) => {
-      let tr = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) tr += e.results[i][0].transcript;
-      if (e.results[e.results.length-1].isFinal) fillFromVoice(tr);
+      // Eng yaxshi natijani oling
+      let tr = e.results[0][0].transcript;
+      fillFromVoice(tr);
     };
     voiceRec.onerror = () => { voiceOn = false; document.getElementById('voice-btn').classList.remove('on'); };
     voiceRec.onend  = () => { voiceOn = false; document.getElementById('voice-btn').classList.remove('on'); document.getElementById('voice-label').textContent = 'Ovoz bilan kiritish'; };
@@ -431,6 +434,15 @@
 
     if (!name)          { shake('ef-name');   Toast.show('Nima xarajat qilganingizni kiriting!', 'warn'); return; }
     if (!amount||amount<=0) { shake('ef-amount'); Toast.show('Narxni kiriting!', 'warn'); return; }
+
+    if (walletId) {
+      const wallet = Wallets.get(walletId);
+      if (wallet && Number(wallet.balance) < amount) {
+        shake('ef-amount');
+        Toast.show(`❌ "${wallet.name}" da yetarli mablag' yo'q! Balans: ${Utils.fmtMoney(wallet.balance)}`, 'err');
+        return;
+      }
+    }
 
     DB.add('expenses', {
       id: Utils.uid(),

@@ -69,18 +69,30 @@ const Auth = {
 
   // Sessiyani saqlash
   setSession(user) {
-    sessionStorage.setItem('fin_session', JSON.stringify({ id: user.id, username: user.username, displayName: user.displayName }));
+    const data = JSON.stringify({ id: user.id, username: user.username, displayName: user.displayName });
+    sessionStorage.setItem('fin_session', data);
+    localStorage.setItem('fin_session', data); // Brauzer yopilsa ham saqlansin
   },
 
   // Joriy foydalanuvchi
   current() {
-    try { return JSON.parse(sessionStorage.getItem('fin_session')); }
+    try {
+      // Avval sessionStorage, keyin localStorage
+      const s = sessionStorage.getItem('fin_session') || localStorage.getItem('fin_session');
+      const user = s ? JSON.parse(s) : null;
+      // sessionStorage ga ham yozish (agar faqat localStorage da bo'lsa)
+      if (user && !sessionStorage.getItem('fin_session')) {
+        sessionStorage.setItem('fin_session', JSON.stringify(user));
+      }
+      return user;
+    }
     catch { return null; }
   },
 
   // Chiqish
   logout() {
     sessionStorage.removeItem('fin_session');
+    localStorage.removeItem('fin_session');
     window.location.href = 'finance_auth.html';
   },
 
@@ -1383,9 +1395,16 @@ const Wallets = {
     const list = this.getAll();
     const w = list.find(x => x.id === id);
     if (w) {
-      w.balance = (Number(w.balance) || 0) + delta;
+      const newBalance = (Number(w.balance) || 0) + delta;
+      // Manfiy balansga ruxsat bermaslik
+      if (delta < 0 && newBalance < 0) {
+        return { ok: false, msg: `Mablag' yetarli emas! Balans: ${(Number(w.balance)||0).toLocaleString('uz-UZ')} so'm` };
+      }
+      w.balance = newBalance;
       this.save(list);
+      return { ok: true };
     }
+    return { ok: false, msg: 'Hamyon topilmadi' };
   },
   transfer(fromId, toId, amount, note = '') {
     amount = Number(amount) || 0;

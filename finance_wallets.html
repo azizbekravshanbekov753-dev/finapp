@@ -168,9 +168,61 @@
   </div>
 </div>
 
+<!-- PUL SOLISH MODALI -->
+<div id="deposit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:400px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:17px;font-weight:800;color:var(--t1)">💰 Pul solish</h3>
+      <button onclick="closeDepositModal()" style="background:none;border:none;color:var(--t2);font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div id="deposit-wallet-name" style="font-size:13px;color:var(--t2);margin-bottom:16px;padding:10px;background:var(--bg3);border-radius:8px"></div>
+    <div class="fgrp">
+      <label class="flbl">Qancha pul solasiz? (so'm)</label>
+      <input type="number" id="deposit-amount" class="finp" placeholder="100000" min="1"/>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Izoh (ixtiyoriy)</label>
+      <input type="text" id="deposit-note" class="finp" placeholder="Oylik maosh, Bonus..."/>
+    </div>
+    <button class="btn btn-success" style="width:100%;padding:13px;margin-top:8px" onclick="doDeposit()">
+      ✅ Pul solish
+    </button>
+  </div>
+</div>
+
+<!-- PUL YECHISH MODALI -->
+<div id="withdraw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:400px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.6)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 style="font-size:17px;font-weight:800;color:var(--t1)">💸 Pul yechish</h3>
+      <button onclick="closeWithdrawModal()" style="background:none;border:none;color:var(--t2);font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div id="withdraw-wallet-name" style="font-size:13px;color:var(--t2);margin-bottom:16px;padding:10px;background:var(--bg3);border-radius:8px"></div>
+    <div class="fgrp">
+      <label class="flbl">Qancha pul yechasiz? (so'm)</label>
+      <input type="number" id="withdraw-amount" class="finp" placeholder="50000" min="1"/>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Izoh (ixtiyoriy)</label>
+      <input type="text" id="withdraw-note" class="finp" placeholder="Nima uchun..."/>
+    </div>
+    <button class="btn btn-danger" style="width:100%;padding:13px;margin-top:8px" onclick="doWithdraw()">
+      💸 Yechish
+    </button>
+  </div>
+</div>
+
 <script src="app.js"></script>
 <script>
   function pageRefresh() {
+    // Manfiy balanslarni 0 ga tiklash
+    const wallets = Wallets.getAll();
+    let fixed = false;
+    wallets.forEach(w => {
+      if (Number(w.balance) < 0) { w.balance = 0; fixed = true; }
+    });
+    if (fixed) { Wallets.save(wallets); Toast.show("⚠️ Manfiy balanslar 0 ga tiklandi", 'warn'); }
+
     renderWallets();
     renderTransfers();
   }
@@ -208,10 +260,115 @@
           </div>
           <div class="wallet-balance-label">${w.name}</div>
           <div class="wallet-balance-val">${Utils.fmtMoney(w.balance || 0)}</div>
+          <div style="display:flex;gap:6px;margin-top:12px">
+            <button class="btn btn-success btn-sm" style="flex:1" onclick="openDepositModal('${w.id}')">+ Pul solish</button>
+            <button class="btn btn-danger btn-sm" style="flex:1" onclick="openWithdrawModal('${w.id}')">− Yechish</button>
+          </div>
         </div>
       `;
     }).join('');
   }
+
+  let activeWalletId = null;
+
+  // ── PUL SOLISH ──
+  function openDepositModal(id) {
+    activeWalletId = id;
+    const w = Wallets.get(id);
+    if (!w) return;
+    document.getElementById('deposit-wallet-name').innerHTML =
+      `${w.icon} <b>${w.name}</b> — Hozirgi balans: <b style="color:var(--green)">${Utils.fmtMoney(w.balance)}</b>`;
+    document.getElementById('deposit-amount').value = '';
+    document.getElementById('deposit-note').value   = '';
+    document.getElementById('deposit-modal').style.display = 'flex';
+  }
+
+  function closeDepositModal() {
+    document.getElementById('deposit-modal').style.display = 'none';
+    activeWalletId = null;
+  }
+
+  function doDeposit() {
+    const amount = parseFloat(document.getElementById('deposit-amount').value);
+    const note   = document.getElementById('deposit-note').value.trim();
+    if (!amount || amount <= 0) { Toast.show('Summani kiriting!', 'warn'); return; }
+
+    Wallets.updateBalance(activeWalletId, amount);
+
+    // Tarix uchun yozuv saqlash
+    const w = Wallets.get(activeWalletId);
+    DB.add('wallet_history', {
+      id:       Utils.uid(),
+      walletId: activeWalletId,
+      walletName: w?.name || '',
+      type:     'deposit',
+      amount,
+      note:     note || 'Pul solish',
+      date:     Utils.today(),
+      createdAt: new Date().toISOString(),
+    });
+
+    Toast.show(`✅ ${Utils.fmtMoney(amount)} solindi!`, 'ok');
+    closeDepositModal();
+    pageRefresh(); App.refresh();
+  }
+
+  // ── PUL YECHISH ──
+  function openWithdrawModal(id) {
+    activeWalletId = id;
+    const w = Wallets.get(id);
+    if (!w) return;
+    document.getElementById('withdraw-wallet-name').innerHTML =
+      `${w.icon} <b>${w.name}</b> — Hozirgi balans: <b style="color:var(--amber)">${Utils.fmtMoney(w.balance)}</b>`;
+    document.getElementById('withdraw-amount').value = '';
+    document.getElementById('withdraw-note').value   = '';
+    document.getElementById('withdraw-modal').style.display = 'flex';
+  }
+
+  function closeWithdrawModal() {
+    document.getElementById('withdraw-modal').style.display = 'none';
+    activeWalletId = null;
+  }
+
+  function doWithdraw() {
+    const amount = parseFloat(document.getElementById('withdraw-amount').value);
+    const note   = document.getElementById('withdraw-note').value.trim();
+    if (!amount || amount <= 0) { Toast.show('Summani kiriting!', 'warn'); return; }
+
+    const w = Wallets.get(activeWalletId);
+    if (!w) return;
+
+    // Balans tekshiruvi — manfiy bo'lmasin
+    if (Number(w.balance) < amount) {
+      Toast.show(`❌ Mablag' yetarli emas!\n"${w.name}" balans: ${Utils.fmtMoney(w.balance)}`, 'err', 4000);
+      return;
+    }
+
+    const res = Wallets.updateBalance(activeWalletId, -amount);
+    if (!res || !res.ok) {
+      Toast.show(`❌ ${res?.msg || 'Xatolik yuz berdi'}`, 'err');
+      return;
+    }
+
+    DB.add('wallet_history', {
+      id: Utils.uid(), walletId: activeWalletId,
+      walletName: w.name, type: 'withdraw',
+      amount, note: note || 'Pul yechish',
+      date: Utils.today(), createdAt: new Date().toISOString(),
+    });
+
+    Toast.show(`✅ ${Utils.fmtMoney(amount)} yechildi!`, 'ok');
+    closeWithdrawModal();
+    pageRefresh(); App.refresh();
+  }
+
+  // Modal tashqarisiga bosganda yopish
+  document.getElementById('deposit-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('deposit-modal')) closeDepositModal();
+  });
+  document.getElementById('withdraw-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('withdraw-modal')) closeWithdrawModal();
+  });
 
   function deleteWallet(id) {
     if (!confirm("Ushbu hamyonni o'chirishni istaysizmi?")) return;
